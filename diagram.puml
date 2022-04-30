@@ -1,0 +1,41 @@
+title Notification Service
+
+LAYOUT_LANDSCAPE()
+
+
+actor Клиент as Client
+actor Админ as Admin
+
+
+Boundary(notification, "Notification Service") {
+    Container(nginx_ns, "Nginx", "<$nginx>", "Держит нагрузку")
+    Container(admin, "Admin", "<$django>", "Панель управления")
+    ContainerDb(rabbitmq_ns, "RabbitMQ", "RabbitMQ", "Брокер сообщений")
+    ContainerDb(postgresql_ns, "PostgreSQL", "<$postgresql>", "БД" )
+    Component(ugc_ns, "UGC/Auth", "python")
+    Component(admin_ns, "Admin", "python")
+    Component(cron_ns, "Cron", "python")
+
+    Component(worker_em_ns, "Worker Email", "python")
+    Component(worker_sms_ns, "Worker SMS", "python")
+
+    ugc_ns --> rabbitmq_ns
+    admin_ns --> rabbitmq_ns
+    cron_ns --> admin
+
+    rabbitmq_ns --> worker_em_ns
+    rabbitmq_ns --> worker_sms_ns
+    Admin --> nginx_ns
+
+    worker_em_ns --> Client
+    worker_sms_ns --> Client
+
+    nginx_ns --> admin
+    postgresql_ns --> admin
+    admin <--> rabbitmq_ns
+}
+
+
+
+
+@enduml
