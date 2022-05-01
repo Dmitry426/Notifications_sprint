@@ -44,6 +44,7 @@ Boundary(notification, "Notification Service") {
 
     postgresql_ns <--> admin
     admin <--> rabbitmq_ns
+
 }
 
 
