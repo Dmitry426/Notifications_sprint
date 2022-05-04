@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %}</title>
+</head>
+<body>
+<div style="max-width: 1191px;">
+    <div style="background-color:#ffffff;line-height:inherit;margin:0;padding:0">
+        <div style="background-color:transparent;border-collapse:collapse;display:table;line-height:inherit;width:100%">
+            <div style="background-color:transparent;line-height:inherit;margin:0 auto 0 auto;max-width:700px;
+            min-width:320px;word-break:break-word;word-wrap:break-word">
+                <div style="background-color:transparent;border-collapse:collapse;
+                display:table;line-height:inherit;width:100%">
+                    <div style="display:table-cell;line-height:inherit;max-width:350px;
+                    min-width:320px;vertical-align:top">
+                        <div style="line-height:inherit;width:100% !important">
+                            <div style="border: solid transparent;line-height:inherit;padding:10px 20px 10px 20px">
+                                <div style="text-align: left;line-height:inherit;">
+                                    <img alt="Image"
+                                         src="https://pastseason.ru/sites/default/files/pastseason_0.png"
+                                         title="Image" width="171"
+                                         style="border:0;clear:both;display:block;float:none;height:auto;
+                                         line-height:inherit;max-width:171px;text-decoration:none;width:100%">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display:table-cell;line-height:inherit;max-width:350px;min-width:320px;
+                    vertical-align:top">
+                        <div style="line-height:inherit;width:100% !important">
+                            <div style="border: solid transparent;line-height:inherit;">
+                                <div style="text-align: right; line-height:inherit;padding:10px">
+                                    <a href="/"
+                                       target="_blank"
+                                       style="background-color:#fcce0a;border:1px solid #fcce0a;border-radius:26px;
+                                       color:#000000;display:inline-block;
+                                       font-family:'open sans', 'helvetica', 'arial', sans-serif;
+                                       line-height:inherit;padding-bottom:8px;padding-top:8px;text-align:center;
+                                       text-decoration:none;width:auto"
+                                       data-link-id="1" rel="noopener noreferrer">
+                                            <span style="display:inline-block;font-size:12px; line-height:inherit;
+                                            padding-left:20px;padding-right:20px">
+                                                <span style="font-size:12px;line-height:24px">
+                                                    Войти в свою учетную запись
+                                                </span>
+                                            </span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div style="line-height:inherit">
+                    Приветствуем, {{ user }}!
+                    <br style="line-height:inherit">
+                    <br style="line-height:inherit">
+
+{% block body %}{% endblock %}
+
+                    <br style="line-height:inherit">
+                    Команда онлайн кинотеатра pastseason.ru
+                    <br style="line-height:inherit">
+                    <br style="line-height:inherit">
+                    <br style="line-height:inherit">
+                </div>
+            </div>
+        </div>
+        <table style="margin: 0 auto;border-collapse:collapse;border-spacing:0;
+        line-height:inherit;table-layout:fixed;vertical-align:top">
+            <tbody style="line-height:inherit">
+            <tr style="vertical-align: top;text-align: center;border-collapse:collapse;
+            display:inline-block;line-height:inherit;">
+                <td style="border-collapse:collapse;line-height:inherit;padding-bottom:5px;
+                padding-left:3px;padding-right:3px;vertical-align:top;word-break:break-word">
+                    <a href="https://www.facebook.com"
+                       target="_blank" style="line-height:inherit" data-link-id="5" rel="noopener noreferrer">
+                        <img alt="Facebook" height="32"
+                             src="https://pastseason.ru/sites/default/files/pictures/fb.png"
+                             title="Facebook" width="32" style="border:medium;clear:both;display:block;float:none;
+                             height:auto;line-height:inherit;text-decoration:none">
+                    </a>
+                </td>
+                <td style="border-collapse:collapse;line-height:inherit;padding-bottom:5px;
+                padding-left:3px;padding-right:3px;vertical-align:top;word-break:break-word">
+                    <a href="https://twitter.com"
+                       target="_blank" style="line-height:inherit" data-link-id="6" rel="noopener noreferrer">
+                        <img alt="Twitter" height="32"
+                             src="https://pastseason.ru/sites/default/files/pictures/tw.png"
+                             title="Twitter" width="32" style="border:medium;clear:both;display:block;float:none;
+                             height:auto;line-height:inherit;text-decoration:none">
+                    </a>
+                </td>
+                <td style="border-collapse:collapse;line-height:inherit;padding-bottom:5px;
+                padding-left:3px;padding-right:3px;vertical-align:top;word-break:break-word">
+                    <a href="https://www.instagram.com"
+                       target="_blank" style="line-height:inherit" data-link-id="7" rel="noopener noreferrer">
+                        <img alt="Instagram" height="32"
+                             src="https://pastseason.ru/sites/default/files/pictures/insta.png"
+                             title="Instagram" width="32" style="border:medium;clear:both;display:block;float:none;
+                             height:auto;line-height:inherit;text-decoration:none">
+                    </a>
+                </td>
+                <td style="border-collapse:collapse;line-height:inherit;padding-bottom:5px;
+                padding-left:3px;padding-right:3px;vertical-align:top;word-break:break-word">
+                    <a href="https://www.linkedin.com"
+                       target="_blank" style="line-height:inherit" data-link-id="8" rel="noopener noreferrer">
+                        <img alt="LinkedIn" height="32"
+                             src="https://pastseason.ru/sites/default/files/pictures/in.png"
+                             title="LinkedIn" width="32" style="border:medium;clear:both;display:block;
+                             float:none;height:auto;line-height:inherit;text-decoration:none">
+                    </a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <p style="color:#888888;font-size:13px;line-height:inherit;text-align:center">
+        Если вы хотите отказаться от подписки и прекратить получать эти электронные письма,
+        <a data-link-id="9" href="{{link_out}}"
+           rel="noopener noreferrer"
+           style="line-height:inherit"
+           target="_blank"> нажмите здесь </a>.&nbsp;
+    </p>
+</div>
+</body>
+</html>

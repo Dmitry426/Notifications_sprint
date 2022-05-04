@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
 {% block title %}
-Welcome Email
+Bookmarks
 {% endblock %}
 {% block body %}
-    Вы всего в одном шаге от завершения регистрации. Пожалуйста, подтвердите свой адрес электронной
-    почты:
+    Специально для вас мы добавили новую серию сериала «{{serial_name}}».<br>
+    Серия доступна по ссылке:
     <div style="text-align: center; line-height:inherit;padding:20px 10px 30px 10px">
         <a href="{{link}}" style="line-height:inherit" data-link-id="2" target="_blank"
            rel="noopener noreferrer">
@@ -15,13 +15,15 @@ Welcome Email
             text-decoration:none;width:auto">
                 <span style="display:inline-block;font-size:17px;line-height:inherit;
                 padding-left:45px;padding-right:45px">
-                    <span style="font-size:15px;line-height:28px">Подтвердить электронную почту</span>
+                    <span style="font-size:15px;line-height:28px">Смотреть новую серию</span>
                 </span>
             </div>
         </a>
     </div>
     Если ссылка выше не работает, скопируйте и вставьте следующий адрес в свой веб-браузер :
     <a href="{{link}}" data-link-id="3" target="_blank" rel="noopener noreferrer">{{link}}</a>
-    <br><br>
-    Спасибо, что вы присоединились к пользователям нашего кинотеатра!&nbsp;
+    <br style="line-height:inherit">
+    <br style="line-height:inherit">
+    Приятного просмотра!
+    <br style="line-height:inherit">
 {% endblock %}
