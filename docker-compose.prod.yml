@@ -1,0 +1,208 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: ../notification_sprint/Dockerfiles/ugc_service/Dockerfile
+      target: production
+    environment:
+      - PORT_APP=4000
+      - WORKERS=2
+      - HOST_APP=0.0.0.0
+    ports:
+      - "127.0.0.1:4000:4000"
+    env_file:
+      - ./.env
+    depends_on:
+      - broker
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:12201
+        tag: "ugc"
+
+  etl:
+    build:
+      context: ./etl_events
+      dockerfile: ../notification_sprint/Dockerfiles/etl_events/Dockerfile
+      target: development
+    image: etl_events
+    env_file:
+      - ./.env
+    volumes:
+      - "./etl_events:/src/etl_events"
+    depends_on:
+      - app
+      - clickhouse-node1
+      - clickhouse-node2
+      - clickhouse-node3
+      - clickhouse-node4
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:12201
+        tag: "etl"
+
+  zookeeper_click:
+    image: zookeeper:latest
+    container_name: zookeeper_click
+    hostname: zookeeper_click
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:12201
+        tag: "zookeeper"
+
+  clickhouse-node1:
+    image: yandex/clickhouse-server:20.4
+    container_name: clickhouse-node1
+    hostname: clickhouse-node1
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    volumes:
+      - "./clickhouse/node1:/etc/clickhouse-server"
+    depends_on:
+      - zookeeper_click
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:12201
+        tag: "clickhouse"
+
+  clickhouse-node2:
+    image: yandex/clickhouse-server:20.4
+    container_name: clickhouse-node2
+    hostname: clickhouse-node2
+    volumes:
+      - "./clickhouse/node2:/etc/clickhouse-server"
+    depends_on:
+      - zookeeper_click
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:12201
+        tag: "clickhouse"
+
+  clickhouse-node3:
+    image: yandex/clickhouse-server:20.4
+    container_name: clickhouse-node3
+    hostname: clickhouse-node3
+    volumes:
+      - "./clickhouse/node3:/etc/clickhouse-server"
+    depends_on:
+      - zookeeper_click
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:12201
+        tag: "clickhouse"
+
+  clickhouse-node4:
+    image: yandex/clickhouse-server:20.4
+    container_name: clickhouse-node4
+    hostname: clickhouse-node4
+    volumes:
+      - "./clickhouse/node2:/etc/clickhouse-server"
+    depends_on:
+      - zookeeper_click
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:12201
+        tag: "clickhouse"
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    hostname: zookeeper
+    container_name: zookeeper_kafka
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:12201
+        tag: "zookeeper"
+
+  broker:
+    image: confluentinc/cp-server:latest
+    hostname: broker
+    container_name: broker
+    ports:
+      - "9092:9092"
+      - "9101:9101"
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:12201
+        tag: "kafka"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CREATE_TOPICS: "film"
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_HOSTNAME: localhost
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: broker:29092
+      CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
+      CONFLUENT_METRICS_ENABLE: 'true'
+      CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
+
+    depends_on:
+      - zookeeper
+
+  nginx:
+    image: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - app
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:12201
+        tag: "nginx"
+
+  logstash:
+    #image: docker.elastic.co/logstash/logstash:8.1.3
+    image: logstash:8.1.3
+    environment:
+      - XPACK_MONITORING_ENABLED="false"
+      - ES_HOST=elasticsearch:9200
+    ports:
+      - "5044:5044/udp"
+      - "12201:12201/udp"
+    volumes:
+      - ./elk/logstash.conf:/config/logstash.conf:ro
+    command: logstash -f /config/logstash.conf
+    depends_on:
+      - elasticsearch
+
+  elasticsearch:
+    #image: docker.elastic.co/elasticsearch/elasticsearch:8.1.3
+    image: elasticsearch:8.1.3
+    environment:
+      discovery.type: 'single-node'
+      xpack.security.enabled: 'false'
+      cluster.routing.allocation.disk.watermark.low: '10gb'
+      cluster.routing.allocation.disk.watermark.high: '5gb'
+      cluster.routing.allocation.disk.watermark.flood_stage: '1gb'
+    ports:
+      - 9200:9200
+    volumes:
+      - ./esdata:/usr/share/elasticsearch/data
+
+  kibana:
+    #image: docker.elastic.co/kibana/kibana:8.1.3
+    image: kibana:8.1.3
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
