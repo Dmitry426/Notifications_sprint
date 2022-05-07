@@ -13,22 +13,12 @@ black:
 	black .
 
 mypy:
-	mypy -p ugc_service
+	mypy -p admin
 
 flake8:
 	flake8 .
 
 pylint:
-	pylint etl_events ugc_service tests
+	pylint workers admin
 
 lint: isort black mypy flake8 pylint
-
-.PHONY: test
-test:
-	docker-compose -f tests/docker-compose.yml down --remove-orphans
-	docker-compose -f tests/docker-compose.yml run test
-
-
-.PHONY: test-cleanup
-test-cleanup:
-	docker-compose -f tests/docker-compose.yml down

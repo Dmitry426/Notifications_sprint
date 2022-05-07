@@ -1,230 +1,63 @@
 services:
-  app:
+  event_listener:
     build:
       context: .
-      dockerfile: ../notification_sprint/Dockerfiles/ugc_service/Dockerfile
+      dockerfile: ./Dockerfiles/workers/Dockerfile
       target: development
-    image: ugc_service
-    environment:
-      - PORT_APP=4000
-    ports:
-      - "127.0.0.1:4000:4000"
     env_file:
       - ./.env
+    command: [ "python", "-m", "workers.event_listener"]
     volumes:
-      - "./ugc_service:/src/ugc_service"
-    depends_on:
-      - zookeeper
-    logging:
-      driver: gelf
-      options:
-        gelf-address: udp://localhost:12201
-        tag: "ugc"
+      - "./workers/event_listener:/src/workers/event_listener"
+    links:
+      - postgres
 
-  etl:
+  admin:
     build:
-      context: ./etl_events
-      dockerfile: ../notification_sprint/Dockerfiles/etl_events/Dockerfile
+      context: ./admin
+      dockerfile: ../Dockerfiles/admin/Dockerfile
       target: development
-    image: etl_events
+    volumes:
+      - "./admin:/src/admin"
+#    command: gunicorn config.wsgi:application --bind 0.0.0.0:4000
     env_file:
       - ./.env
+
+  rabbitmq:
+    container_name: "rabbitmq"
+    image: rabbitmq:3.8-management-alpine
     volumes:
-      - "./etl_events:/src/etl_events"
-    depends_on:
-      - app
-      - clickhouse-node1
-      - clickhouse-node2
-      - clickhouse-node3
-      - clickhouse-node4
-    logging:
-      driver: gelf
-      options:
-        gelf-address: udp://localhost:12201
-        tag: "etl"
-
-  zookeeper_click:
-    image: zookeeper:latest
-    container_name: zookeeper_click
-    hostname: zookeeper_click
-    logging:
-      driver: gelf
-      options:
-        gelf-address: udp://localhost:12201
-        tag: "zookeeper"
-
-  clickhouse-node1:
-    image: yandex/clickhouse-server:20.4
-    container_name: clickhouse-node1
-    hostname: clickhouse-node1
+      - ./Configs/rabbit/message_event/rabbitmq.config:/etc/rabbitmq/rabbitmq.config:ro
+      - ./Configs/rabbit/message_event/definitions.json:/etc/rabbitmq/definitions.json:ro
     ports:
-      - "8123:8123"
-      - "9000:9000"
-    volumes:
-      - "./clickhouse/node1:/etc/clickhouse-server"
-    depends_on:
-      - zookeeper_click
-    logging:
-      driver: gelf
-      options:
-        gelf-address: udp://localhost:12201
-        tag: "clickhouse"
+      - '5672:5672'
+      - '15672:15672'
+    env_file:
+      - ./.env
 
-  clickhouse-node2:
-    image: yandex/clickhouse-server:20.4
-    container_name: clickhouse-node2
-    hostname: clickhouse-node2
-    volumes:
-      - "./clickhouse/node2:/etc/clickhouse-server"
-    depends_on:
-      - zookeeper_click
-    logging:
-      driver: gelf
-      options:
-        gelf-address: udp://localhost:12201
-        tag: "clickhouse"
-
-  clickhouse-node3:
-    image: yandex/clickhouse-server:20.4
-    container_name: clickhouse-node3
-    hostname: clickhouse-node3
-    volumes:
-      - "./clickhouse/node3:/etc/clickhouse-server"
-    depends_on:
-      - zookeeper_click
-    logging:
-      driver: gelf
-      options:
-        gelf-address: udp://localhost:12201
-        tag: "clickhouse"
-
-  clickhouse-node4:
-    image: yandex/clickhouse-server:20.4
-    container_name: clickhouse-node4
-    hostname: clickhouse-node4
-    volumes:
-      - "./clickhouse/node2:/etc/clickhouse-server"
-    depends_on:
-      - zookeeper_click
-    logging:
-      driver: gelf
-      options:
-        gelf-address: udp://localhost:12201
-        tag: "clickhouse"
-
-  zookeeper:
-    image: confluentinc/cp-zookeeper:latest
-    hostname: zookeeper
-    container_name: zookeeper_kafka
-    ports:
-      - "2181:2181"
+  postgres:
+    image: postgres:13.0-alpine
     environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-    logging:
-      driver: gelf
-      options:
-        gelf-address: udp://localhost:12201
-        tag: "zookeeper"
-
-  broker:
-    image: confluentinc/cp-server:latest
-    hostname: broker
-    container_name: broker
-    ports:
-      - "9092:9092"
-      - "9101:9101"
-    logging:
-      driver: gelf
-      options:
-        gelf-address: udp://localhost:12201
-        tag: "kafka"
-    environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:29092,PLAINTEXT_HOST://localhost:9092
-      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
-      KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_CONFLUENT_BALANCER_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-      KAFKA_CREATE_TOPICS: "film"
-      KAFKA_JMX_PORT: 9101
-      KAFKA_JMX_HOSTNAME: localhost
-      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: broker:29092
-      CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
-      CONFLUENT_METRICS_ENABLE: 'true'
-      CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
-      #ZOOKEEPER_LOG4J_ROOT_LOGLEVEL: ERROR
-      #KAFKA_LOG4J_ROOT_LOGLEVEL: ERROR
-      #CONTROL_CENTER_LOG4J_ROOT_LOGLEVEL: ERROR
-      #SCHEMA_REGISTRY_LOG4J_ROOT_LOGLEVEL: ERROR
-      #KAFKA_REST_LOG4J_ROOT_LOGLEVEL: ERROR
-      #CONNECT_LOG4J_ROOT_LOGLEVEL: ERROR
-      #KSQL_LOG4J_ROOT_LOGLEVEL: ERROR
-      #REPLICATOR_LOG4J_ROOT_LOGLEVEL: ERROR
-      #ZOOKEEPER_TOOLS_LOG4J_LOGLEVEL: ERROR
-      #KAFKA_TOOLS_LOG4J_LOGLEVEL: ERROR
-      #CONTROL_CENTER_TOOLS_LOG4J_LOGLEVEL: ERROR
-      #SCHEMA_REGISTRY_TOOLS_LOG4J_LOGLEVEL: ERROR
-      #KAFKA_REST_TOOLS_LOG4J_LOGLEVEL: ERROR
-      #CONNECT_TOOLS_LOG4J_LOGLEVEL: ERROR
-      #KSQL_TOOLS_LOG4J_LOGLEVEL: ERROR
-      #REPLICATOR_TOOLS_LOG4J_LOGLEVEL: ERROR
-
-    depends_on:
-      - zookeeper
-
-  nginx:
-    image: nginx
-    ports:
-      - "80:80"
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
+      POSTGRES_DB: ${PG_DBNAME}
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-    depends_on:
-      - app
-    logging:
-      driver: gelf
-      options:
-        gelf-address: udp://localhost:12201
-        tag: "nginx"
+      - postgres_volume:/var/lib/postgresql/data/
+      - ./Configs/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    env_file:
+      - ./.env
+    expose:
+      - 5432
 
-  logstash:
-    #image: docker.elastic.co/logstash/logstash:8.1.3
-    image: logstash:8.1.3
-    environment:
-      - XPACK_MONITORING_ENABLED="false"
-      - ES_HOST=elasticsearch:9200
-    ports:
-      - "5044:5044/udp"
-      - "12201:12201/udp"
-    volumes:
-      - ./elk/logstash.conf:/config/logstash.conf:ro
-    command: logstash -f /config/logstash.conf
-    depends_on:
-      - elasticsearch
-
-  elasticsearch:
-    #image: docker.elastic.co/elasticsearch/elasticsearch:8.1.3
-    image: elasticsearch:8.1.3
-    environment:
-      discovery.type: 'single-node'
-      xpack.security.enabled: 'false'
-      cluster.routing.allocation.disk.watermark.low: '10gb'
-      cluster.routing.allocation.disk.watermark.high: '5gb'
-      cluster.routing.allocation.disk.watermark.flood_stage: '1gb'
-    ports:
-      - 9200:9200
-    volumes:
-      - ./esdata:/usr/share/elasticsearch/data
-
-  kibana:
-    #image: docker.elastic.co/kibana/kibana:8.1.3
-    image: kibana:8.1.3
-    ports:
-      - "5601:5601"
-    depends_on:
-      - elasticsearch
+#  nginx:
+#    image: nginx
+#    ports:
+#      - "80:80"
+#    volumes:
+#      - ./Configs/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+#    depends_on:
+#      - admin
+#
+volumes:
+  postgres_volume:
+    driver: local

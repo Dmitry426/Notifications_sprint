@@ -65,6 +65,3 @@ RUN poetry install
 WORKDIR /src
 
 EXPOSE $PORT_APP
-
-
-
