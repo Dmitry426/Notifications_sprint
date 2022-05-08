@@ -1,0 +1,63 @@
+services:
+  event_listener:
+    build:
+      context: .
+      dockerfile: ./Dockerfiles/workers/Dockerfile
+      target: development
+    env_file:
+      - ./.env
+    command: [ "python", "-m", "workers.event_listener"]
+    volumes:
+      - "./workers/event_listener:/src/workers/event_listener"
+    links:
+      - postgres
+
+  admin:
+    build:
+      context: ./admin
+      dockerfile: ../Dockerfiles/admin/Dockerfile
+      target: development
+    volumes:
+      - "./admin:/src/admin"
+#    command: gunicorn config.wsgi:application --bind 0.0.0.0:4000
+    env_file:
+      - ./.env
+
+  rabbitmq:
+    container_name: "rabbitmq"
+    image: rabbitmq:3.8-management-alpine
+    volumes:
+      - ./Configs/rabbit/message_event/rabbitmq.config:/etc/rabbitmq/rabbitmq.config:ro
+      - ./Configs/rabbit/message_event/definitions.json:/etc/rabbitmq/definitions.json:ro
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    env_file:
+      - ./.env
+
+  postgres:
+    image: postgres:13.0-alpine
+    environment:
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
+      POSTGRES_DB: ${PG_DBNAME}
+    volumes:
+      - postgres_volume:/var/lib/postgresql/data/
+      - ./Configs/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    env_file:
+      - ./.env
+    expose:
+      - 5432
+
+#  nginx:
+#    image: nginx
+#    ports:
+#      - "80:80"
+#    volumes:
+#      - ./Configs/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+#    depends_on:
+#      - admin
+#
+volumes:
+  postgres_volume:
+    driver: local
