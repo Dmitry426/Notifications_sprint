@@ -24,6 +24,7 @@ class NotificationStatuses(models.TextChoices):
     FAIL = 'fail', _('Неудача')
     PLAN = 'plan', _('План')
     SUCCESS = 'success', _('Удача')
+    CONFIRMATION = 'confirmation', _('Подтверждение')
     QUEUE = 'queue', _('Очередь')
 
 
@@ -46,6 +47,7 @@ class Frequency(models.TextChoices):
     SUN = 'sun', _('Воскресенье')
     MONTH = 'month', _('Месяц')
     DAILY = 'daily', _('Ежедневно')
+    NOW = 'now', _('Сейчас')
 
 
 class Priority(models.TextChoices):
@@ -122,6 +124,7 @@ class Notification(TimeStampedModel):
     subject = models.CharField(_('Тема письма'), blank=False, max_length=255)
     body = models.TextField(_('Письмо'), blank=False)
     priority = models.CharField(_('Приоритет'), max_length=20, choices=Priority.choices)
+    recipient_body_hash = models.CharField(_('ХЭШ'), max_length=255, unique=True)
 
     class Meta:
         verbose_name = _('Уведомление')
@@ -157,7 +160,7 @@ class NotificationRecipient(TimeStampedModel):
 class Scheduler(TimeStampedModel):
     id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     template = models.CharField(_('Шаблон'), max_length=20, choices=Template.choices)
-    recipient = models.ForeignKey('Recipient', on_delete=models.CASCADE, to_field='id', db_column='recipient_id')
+    recipient = models.ManyToManyField(Movie, through='Recipient', name='recipient')
     when = models.CharField(_('Периодичность'), max_length=20, choices=Frequency.choices)
     priority = models.CharField(_('Приоритет'), max_length=20, choices=Priority.choices)
 
@@ -169,3 +172,19 @@ class Scheduler(TimeStampedModel):
 
     def __str__(self):
         return self.title
+
+
+class SchedulerRecipient(TimeStampedModel):
+    id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
+    recipient = models.ForeignKey('Recipient', on_delete=models.CASCADE, to_field='id', db_column='recipient_id')
+    scheduler = models.ForeignKey('Scheduler', on_delete=models.CASCADE, to_field='id', db_column='scheduler_id')
+
+    class Meta:
+        indexes = [models.Index(fields=['scheduler_id', 'recipient_id'], name='scheduler_id_recipient')]
+        verbose_name = _('Шаблон получателей')
+        verbose_name_plural = _('Шаблоны получателей')
+        db_table = '"content"."scheduler_recipient"'
+        managed = False
+
+        def __str__(self):
+            return str(f'{self.scheduler} - {self.recipient}')

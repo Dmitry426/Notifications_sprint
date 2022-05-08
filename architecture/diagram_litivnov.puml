@@ -14,23 +14,28 @@ actor Клиент as Client
 actor Админ as Admin
 
 Boundary(sources, "Data"){
-    Container(auth_ns, "Auth", "api")
-    Container(ugc_ns, "UGC", "api")
-    Container(movies_admin, "Movie admin", 'api')
+    Container(auth_ns, "Auth", "producer")
+    Container(ugc_ns, "UGC", "producer")
+    Container(movies_admin, "Movie admin", 'producer')
     }
 
 Component(mail, "Почтовый сервис", "Yandex")
 Component(sms, "Сервис СМС", "?")
 Component(push, "Сервис push", "?")
 
-Boundary(notification, "Notification Service") {
-    Container(nginx_ns, "Nginx", "<$nginx>", "Держит нагрузку")
+Container(rabbit_1, "Единое окно", "RabbitMQ", "Очереди\nуведомлений")
 
-    Container(api_ns, "Generator", "Панель управления"){
-       Component(api, "Notification API", "FastAPI")
-       Component(admin_ns, "Admin panel", "Django")
-       Component(template, "Template engine", "jinja2")
-       Component(scheduler, "Scheduler", "python")
+Boundary(notification, "Notification Service") {
+
+    Container(storage_consumer, "Storage consumer", "python", "Читает очереди\nпишет в БД:\n-в рецепиента\n-в фильмы\n-в закладки\n-в уведомления\n-в планировщик")
+
+    Component(admin_django, "Admin panel", "Django/astAPI")
+
+    Container(notification_consumer_ns, "Generator", "Генератор уведомелений"){
+       Component(notification_consumer, "Notification consumer", "python", 'Читает из БД notification\nпо условию.')
+       Component(notification_producer, "Notification producer", "python", 'Передает в Broker')
+       Component(template, "Templates", "jinja2", 'Шаблоны в html')
+       Component(scheduler, "Scheduler", "python", "Читает планировщик\nГенерит\nуведомления\nпо расписанию.\nОбогащает данными\nЗаписывает в  notification")
     }
 
     ContainerDb(broker, "Broker", "RabbitMQ", "Брокер сообщений")
@@ -42,33 +47,38 @@ Boundary(notification, "Notification Service") {
         Component(worker_push_ns, "Worker Push", "python")
     }
 
-    Admin --> nginx_ns
-    nginx_ns --> api
-    nginx_ns --> admin_ns
+    Admin --> admin_django
+    rabbit_1 --> storage_consumer
+    storage_consumer --> postgresql_ns
+
 
     postgresql_ns <-- scheduler
-    postgresql_ns <-- template
+    scheduler <--> template
 
-    scheduler <--> api
-    admin_ns --> api
-    template <-- api
+
+    admin_django --> postgresql_ns
+
 
     broker --> worker_em_ns
     broker --> worker_sms_ns
     broker --> worker_push_ns
-    api --> broker
+    notification_producer --> broker
+    notification_consumer --> notification_producer
+    postgresql_ns <--notification_consumer
 
     worker_em_ns --> mail
     worker_sms_ns --> sms
     worker_push_ns --> push
 }
 
-auth_ns --> nginx_ns
-ugc_ns --> nginx_ns
-movies_admin --> nginx_ns
+auth_ns --> rabbit_1
+ugc_ns --> rabbit_1
+movies_admin --> rabbit_1
 
 mail --> Client
 sms --> Client
 push --> Client
+
+postgresql_ns <-- workers
 
 @enduml
