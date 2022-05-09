@@ -6,6 +6,7 @@ from flask_app.models.models import Role, User
 from flask_app.schemas.user import user_create_schema, user_schema
 from flask_app.utils.rate_limit import rate_limit
 from flask_app.utils.welcome import send_email, get_html, little_url
+from flask_app.utils.producer import producer
 from http import HTTPStatus
 
 
@@ -96,6 +97,8 @@ def user_add():
 
     confirm_url = f'http://127.0.0.1/confirm/{token}'
     url = little_url(confirm_url)
+
+    producer()
 
     data_confirm_email = {
         'link_out': 'https://pastseason.ru/',
