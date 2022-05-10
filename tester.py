@@ -6,7 +6,6 @@ import asyncpg
 
 from Configs import config
 
-FROM_MAIL = config.settings.from_mail
 DB_NAME = config.settings.db_name
 DB_USER = config.settings.db_user
 DB_PASSWORD = config.settings.db_password
@@ -42,28 +41,36 @@ DB_PORT = config.settings.db_port
 # producer(data_json, 'ugc_notification')
 
 
-async def insert_notification(user_id, body) -> list:
-    conn = await asyncpg.connect(f'postgres://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}')
+#websocket
+data = {"user_id": "e703065e-25e1-45fe-9bc6-ddacc30ca239",
+        "body ": "Пользователь создан"}
+data_json = json.dumps(data)
+producer(data_json, 'ugc_notification.websocket')
 
-    sql = f"""insert into events.notifications
-              (user_id, body) VALUES ('{user_id}', '{body}')"""
-
-    try:
-        return await conn.execute(sql)
-    # except Exception as e:
-    #     print(f'{sql} - "{e}"')
-
-    finally:
-        await conn.close()
-
-user_id = 'e703065e-25e1-45fe-9bc6-ddacc30ca239'
-body = 'Пользователь создан'
-asyncio.run(insert_notification(user_id, body))
-
-user_id = 'e703065e-25e1-45fe-9bc6-ddacc30ca239'
-body = 'Пользователь наконец подключился!'
-asyncio.run(insert_notification(user_id, body))
-
-user_id = 'e703065e-25e1-45fe-9bc6-ddacc30ca239'
-body = 'Пользователь посмотрел фильм'
-asyncio.run(insert_notification(user_id, body))
+#
+#
+# async def insert_notification(user_id, body) -> list:
+#     conn = await asyncpg.connect(f'postgres://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}')
+#
+#     sql = f"""insert into events.notifications
+#               (user_id, body) VALUES ('{user_id}', '{body}')"""
+#
+#     try:
+#         return await conn.execute(sql)
+#     # except Exception as e:
+#     #     print(f'{sql} - "{e}"')
+#
+#     finally:
+#         await conn.close()
+#
+# user_id = 'e703065e-25e1-45fe-9bc6-ddacc30ca239'
+# body = 'Пользователь создан'
+# asyncio.run(insert_notification(user_id, body))
+#
+# user_id = 'e703065e-25e1-45fe-9bc6-ddacc30ca239'
+# body = 'Пользователь наконец подключился!'
+# asyncio.run(insert_notification(user_id, body))
+#
+# user_id = 'e703065e-25e1-45fe-9bc6-ddacc30ca239'
+# body = 'Пользователь посмотрел фильм'
+# asyncio.run(insert_notification(user_id, body))

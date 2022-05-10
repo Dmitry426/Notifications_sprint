@@ -85,7 +85,16 @@
         "x-queue-type": "classic"
       }
     },
-        {
+    {
+      "name": "ugc_notification.websocket",
+      "vhost": "/vhost1",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-queue-type": "classic"
+      }
+    },
+    {
       "name": "email",
       "vhost": "/vhost1",
       "durable": true,
@@ -97,7 +106,16 @@
   ],
   "exchanges": [
     {
-      "name": "event",
+      "name": "auth",
+      "vhost": "/vhost1",
+      "type": "direct",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    },
+    {
+      "name": "ugc",
       "vhost": "/vhost1",
       "type": "direct",
       "durable": true,
@@ -117,7 +135,7 @@
   ],
   "bindings": [
     {
-      "source": "event",
+      "source": "auth",
       "vhost": "/vhost1",
       "destination": "auth_notification",
       "destination_type": "queue",
@@ -125,11 +143,19 @@
       "arguments": {}
     },
     {
-      "source": "event",
+      "source": "ugc",
       "vhost": "/vhost1",
       "destination": "ugc_notification",
       "destination_type": "queue",
       "routing_key": "ugc_notification",
+      "arguments": {}
+    },
+    {
+      "source": "ugc",
+      "vhost": "/vhost1",
+      "destination": "ugc_notification.websocket",
+      "destination_type": "queue",
+      "routing_key": "ugc_notification.websocket",
       "arguments": {}
     },
     {

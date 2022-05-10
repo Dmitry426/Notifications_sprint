@@ -13,6 +13,13 @@ services:
     env_file:
       - ./.env
 
+  storage_consumer_websocket_consumer:
+    build:
+      context: .
+      dockerfile: ./storage_consumers/websocket_consumer/Dockerfile
+    env_file:
+      - ./.env
+
   worker_email:
     build:
       context: .

@@ -32,11 +32,11 @@ def rabbit_conn():
     return connection_rabbit
 
 
-def producer(body, queue):
+def producer(body, queue, exchange=''):
     logger.info("\n\n --36--\n\n")
     channel = rabbit_conn().channel()
     logger.info("\n\n --38--\n\n")
-    channel.basic_publish(exchange='',
+    channel.basic_publish(exchange=exchange,
                           routing_key=queue,
                           body=body,
                           properties=pika.BasicProperties(
