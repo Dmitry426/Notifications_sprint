@@ -12,5 +12,5 @@ COPY ./Configs Configs
 COPY ./services services
 COPY ./storage_consumers .
 
-CMD [ "python", "-m", "bookmarks.listener"]
+CMD [ "python", "-m", "websocket_consumer.listener"]
 #CMD [ "python", "-m", "http.server"]

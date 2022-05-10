@@ -38,4 +38,4 @@ def on_message(ch, method, properties, body):
     ch.basic_ack(delivery_tag=method.delivery_tag)
 
 
-consumer("websocket", on_message)
+consumer("ugc_notification.websocket", on_message)
