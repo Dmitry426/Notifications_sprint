@@ -91,13 +91,13 @@ def user_update_detail(user_id):
               properties:
                 password:
                   type: 'string'
-                worker_email:
+                email:
                   type: 'string'
                 username:
                   type: 'string'
             example: {
                 'username':'t4444ester',
-                'worker_email': 'mai4444ld09@mail.ru',
+                'email': 'mai4444ld09@mail.ru',
                 'password': '123123'
             }
         responses:
@@ -109,7 +109,7 @@ def user_update_detail(user_id):
                 created:
                   type: 'string'
                   format: 'date-time'
-                worker_email:
+                email:
                   type: 'string'
                 id:
                   type: 'string'
@@ -128,7 +128,7 @@ def user_update_detail(user_id):
             description: Данные не предоставлены.
           409:
             description: Такой пользователь уже существует. Попробуйте другое имя.
-                         Такой worker_email уже используется. Попробуйте другой.
+                         Такой email уже используется. Попробуйте другой.
           422:
             description: Данные невалидны.
           429:

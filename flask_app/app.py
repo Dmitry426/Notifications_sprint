@@ -95,7 +95,7 @@ oauth.google = oauth.register(
     authorize_params=None,
     api_base_url=os.getenv('API_BASE_URL'),
     userinfo_endpoint=os.getenv('USERINFO_ENDPOINT'),
-    client_kwargs={'scope': 'openid worker_email profile'},
+    client_kwargs={'scope': 'openid email profile'},
 )
 
 oauth.yandex = oauth.register(
@@ -107,7 +107,7 @@ oauth.yandex = oauth.register(
             authorize_params=None,
             response_type="code",
             display="popup",
-            scope="login:info login:worker_email",
+            scope="login:info login:email",
         )
 
 app.config['JWT_BLACKLIST_ENABLED'] = True
