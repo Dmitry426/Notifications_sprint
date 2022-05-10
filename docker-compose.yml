@@ -19,3 +19,28 @@ services:
       dockerfile: workers/worker_email/Dockerfile
     env_file:
       - ./.env
+
+  websocket_server:
+    build:
+      context: .
+      dockerfile: websocket_server/Dockerfile
+    env_file:
+      - ./.env
+    ports:
+      - "8765:8765"
+
+  db_notification_10:
+    container_name: db_notification_10
+    image: postgres:13
+    volumes:
+      - ./pg_data:/var/lib/postgresql/data/
+      - ./Configs/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_USER=${RABBIT_DB_USER}
+      - POSTGRES_PASSWORD=${RABBIT_DB_PASSWORD}
+      - POSTGRES_DB=${RABBIT_DB_NAME}
+    ports:
+      - "5433:5432"
+    restart: always
