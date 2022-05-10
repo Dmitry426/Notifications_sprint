@@ -32,7 +32,7 @@ def user_root_detail(user_id):
                 created:
                   type: 'string'
                   format: 'date-time'
-                email:
+                worker_email:
                   type: 'string'
                 id:
                   type: 'string'
@@ -87,13 +87,13 @@ def user_root_put_detail(user_id):
               properties:
                 password:
                   type: 'string'
-                email:
+                worker_email:
                   type: 'string'
                 username:
                   type: 'string'
             example: {
                 'username':'t4444ester',
-                'email': 'mai4444ld09@mail.ru',
+                'worker_email': 'mai4444ld09@mail.ru',
                 'password': '123123'
             }
         responses:
@@ -105,7 +105,7 @@ def user_root_put_detail(user_id):
                 created:
                   type: 'string'
                   format: 'date-time'
-                email:
+                worker_email:
                   type: 'string'
                 id:
                   type: 'string'
@@ -124,7 +124,7 @@ def user_root_put_detail(user_id):
             description: Данные не предоставлены.
           409:
             description: Такой пользователь уже существует. Попробуйте другое имя.
-                         Такой email уже используется. Попробуйте другой.
+                         Такой worker_email уже используется. Попробуйте другой.
           422:
             description: Данные невалидны.
         """

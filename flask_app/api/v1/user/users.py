@@ -26,7 +26,7 @@ def users_list():
                 created:
                   type: 'string'
                   format: 'date-time'
-                email:
+                worker_email:
                   type: 'string'
                 id:
                   type: 'string'

@@ -17,11 +17,11 @@ class UserCreateSchema(ma.SQLAlchemySchema):
     def validate_email(self, email_to_check, user_id=None):
         email = User.query.filter_by(email=email_to_check).first()
         if email and user_id != email.id:
-            abort(make_response(jsonify(message='Такой email уже используется. Попробуйте другой.'),
+            abort(make_response(jsonify(message='Такой worker_email уже используется. Попробуйте другой.'),
                                 HTTPStatus.CONFLICT))
 
     class Meta:
-        fields = ('username', 'email', 'password')
+        fields = ('username', 'worker_email', 'password')
         model = User
         load_instance = True
         sqla_session = db.session
@@ -32,7 +32,7 @@ class UserSchema(UserCreateSchema):
     roles = ma.Nested(RoleAddSchema, many=True)
 
     class Meta:
-        fields = ('id', 'username', 'email', 'status', 'roles', 'created', 'last_changed')
+        fields = ('id', 'username', 'worker_email', 'status', 'roles', 'created', 'last_changed')
         model = User
         load_instance = True
         sqla_session = db.session
@@ -42,7 +42,7 @@ class UserUpdateSchema(UserCreateSchema):
     roles = fields.List(fields.String())
 
     class Meta:
-        fields = ('username', 'email', 'status', 'roles', 'password')
+        fields = ('username', 'worker_email', 'status', 'roles', 'password')
         model = User
         load_instance = True
         sqla_session = db.session

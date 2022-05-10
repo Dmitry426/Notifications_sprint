@@ -14,32 +14,41 @@ actor Клиент as Client
 actor Админ as Admin
 
 Boundary(sources, "Data"){
-    Container(auth_ns, "Auth", "producer")
     Container(ugc_ns, "UGC", "producer")
+    Container(admin_django, "Admin panel", "Django/FastAPI", "Не реализовано.\nОтложенные\nсообщения")
     Container(movies_admin, "Movie admin", 'producer')
+    Container(auth_ns, "Auth", "producer")
+
+
+
     }
 
 Component(mail, "Почтовый сервис", "Yandex")
 Component(sms, "Сервис СМС", "?")
 Component(push, "Сервис push", "?")
 
+
 Container(rabbit_1, "Единое окно", "RabbitMQ", "Очереди\nуведомлений")
 
 Boundary(notification, "Notification Service") {
 
-    Container(storage_consumer, "Storage consumer", "python", "Читает очереди\nпишет в БД:\n-в рецепиента\n-в фильмы\n-в закладки\n-в уведомления\n-в планировщик")
+    Boundary(storage_consumers, "Storage_consumers") {
+        Container(storage_consumer_1, "Storage consumer Welcome", "python", "Читает очередь\nпередает в генератор\nи producer БД")
+        Container(storage_consumer_2, "Storage consumer Like", "python", "Читает очередь\nпередает в генератор\nи producer БД")
+    }
 
-    Component(admin_django, "Admin panel", "Django/astAPI")
 
-    Container(notification_consumer_ns, "Generator", "Генератор уведомелений"){
-       Component(notification_consumer, "Notification consumer", "python", 'Читает из БД notification\nпо условию.')
+    Container(db_consumer_ns, "Generator", "Генератор уведомелений"){
        Component(notification_producer, "Notification producer", "python", 'Передает в Broker')
-       Component(template, "Templates", "jinja2", 'Шаблоны в html')
-       Component(scheduler, "Scheduler", "python", "Читает планировщик\nГенерит\nуведомления\nпо расписанию.\nОбогащает данными\nЗаписывает в  notification")
+       'Component(db_consumer, "DB consumer", "python", 'Читает из БД')
+       'Component(db_producer, "DB producer", "python", 'Пишет в БД')
+       Component(template, "Templates", "jinja2", 'Шаблоны html')
+       Component(generator, "Genetator", "python", 'Генерирует html/txt\nОбогащает данными')
+       'Component(scheduler, "Scheduler", "python", "По расписанию\nзапускает генератор")
     }
 
     ContainerDb(broker, "Broker", "RabbitMQ", "Брокер сообщений")
-    ContainerDb(postgresql_ns, "База данных", "<$postgresql>", "Хранит\nуведомеления" )
+    'ContainerDb(postgresql_ns, "База данных", "<$postgresql>", "Хранит\nуведомеления" )
 
     Boundary(workers, "Workers") {
         Component(worker_em_ns, "Worker Email", "python")
@@ -47,38 +56,49 @@ Boundary(notification, "Notification Service") {
         Component(worker_push_ns, "Worker Push", "python")
     }
 
-    Admin --> admin_django
-    rabbit_1 --> storage_consumer
-    storage_consumer --> postgresql_ns
+    rabbit_1 --> storage_consumer_1
+    rabbit_1 --> storage_consumer_2
+    'storage_consumer_1 --> db_producer
+    'storage_consumer_2 --> db_producer
+    
+    'postgresql_ns <-- db_producer
+    'postgresql_ns <-- db_consumer
+
+    storage_consumer_1 --> generator
+    storage_consumer_2 --> generator
 
 
-    postgresql_ns <-- scheduler
-    scheduler <--> template
-
-
-    admin_django --> postgresql_ns
+    'db_consumer <-- scheduler
+    generator <--> template
+    'scheduler --> generator
 
 
     broker --> worker_em_ns
     broker --> worker_sms_ns
     broker --> worker_push_ns
     notification_producer --> broker
-    notification_consumer --> notification_producer
-    postgresql_ns <--notification_consumer
+    'db_consumer <-- generator
+    generator --> notification_producer
+    
 
     worker_em_ns --> mail
     worker_sms_ns --> sms
     worker_push_ns --> push
 }
 
+Admin --> admin_django
+Admin --> movies_admin
+Admin --> auth_ns
+
 auth_ns --> rabbit_1
 ugc_ns --> rabbit_1
 movies_admin --> rabbit_1
+admin_django --> rabbit_1
 
 mail --> Client
 sms --> Client
 push --> Client
 
-postgresql_ns <-- workers
+'db_producer <-- workers
 
 @enduml

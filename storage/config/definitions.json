@@ -84,11 +84,29 @@
       "arguments": {
         "x-queue-type": "classic"
       }
+    },
+        {
+      "name": "email",
+      "vhost": "/vhost1",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-queue-type": "classic"
+      }
     }
   ],
   "exchanges": [
     {
       "name": "event",
+      "vhost": "/vhost1",
+      "type": "direct",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    },
+      {
+      "name": "delivery",
       "vhost": "/vhost1",
       "type": "direct",
       "durable": true,
@@ -112,6 +130,14 @@
       "destination": "ugc_notification",
       "destination_type": "queue",
       "routing_key": "ugc_notification",
+      "arguments": {}
+    },
+    {
+      "source": "delivery",
+      "vhost": "/vhost1",
+      "destination": "email",
+      "destination_type": "queue",
+      "routing_key": "email",
       "arguments": {}
     }
   ]

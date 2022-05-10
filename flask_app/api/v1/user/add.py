@@ -1,3 +1,5 @@
+import json
+
 from app import app, ma
 from flask import request
 from flask_app.api.v1.auth.base import generate_confirmation_token
@@ -5,8 +7,8 @@ from flask_app.db.postgresql import db
 from flask_app.models.models import Role, User
 from flask_app.schemas.user import user_create_schema, user_schema
 from flask_app.utils.rate_limit import rate_limit
-from flask_app.utils.welcome import send_email, get_html, little_url
-from flask_app.utils.producer import producer
+from flask_app.utils.welcome import get_html, little_url, send_email
+from flask_app.utils.workers import producer
 from http import HTTPStatus
 
 
@@ -30,7 +32,7 @@ def user_add():
               properties:
                 password:
                   type: 'string'
-                email:
+                worker_email:
                   type: 'string'
                 username:
                   type: 'string'
@@ -48,7 +50,7 @@ def user_add():
                 created:
                   type: 'string'
                   format: 'date-time'
-                email:
+                worker_email:
                   type: 'string'
                 id:
                   type: 'string'
@@ -65,7 +67,7 @@ def user_add():
             description: Данные не предоставлены.
           409:
             description: Такой пользователь уже существует. Попробуйте другое имя.
-                         Такой email уже используется. Попробуйте другой.
+                         Такой worker_email уже используется. Попробуйте другой.
           422:
             description: Данные невалидны.
           429:
@@ -96,19 +98,25 @@ def user_add():
     token = generate_confirmation_token(user.id, user.email)
 
     confirm_url = f'http://127.0.0.1/confirm/{token}'
-    url = little_url(confirm_url)
-
-    producer()
+    link = little_url(confirm_url)
 
     data_confirm_email = {
         'link_out': 'https://pastseason.ru/',
-        'link': url,
-        'user': user.username
+        'link': link,
+        'user': user.username,
+        'email': user.email
     }
-    subject = 'Welcome Email'
-    text = f"Приветствуем,{user.username}\nСкопируйте и вставьте следующий адрес в свой веб-браузер: {url}"
-    body = get_html(data_confirm_email, 'welcome.html')
 
-    send_email(subject, text, body, user.email)
-
+    try:
+        data_json = json.dumps(data_confirm_email)
+        producer(data_json, 'auth_notification')
+        # print('\n\nЗапись в очередь\n\n')
+    except:
+        # На случай прямой отправки письма
+        # print('\n\nСамостоятельная отправка письма\n\n')
+        subject = 'Welcome Email'
+        text = f"Приветствуем,{user.username}\nСкопируйте и вставьте следующий адрес в свой веб-браузер: {link}"
+        body = get_html(data_confirm_email, 'welcome.html')
+        # print("\n\n --пока не отправляем--\n\n")
+        send_email(subject, text, body, user.email)
     return schema_view.dump(new_user), HTTPStatus.CREATED

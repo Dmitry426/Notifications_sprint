@@ -24,7 +24,7 @@ app.secret_key = os.getenv('APP_SECRET_KEY')
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
 init_db(app)
 
-# from flask_app.utils.jaeger import init_jaeger
+# from flask_app.services.jaeger import init_jaeger
 # init_jaeger(app)
 
 trace.set_tracer_provider(
@@ -95,7 +95,7 @@ oauth.google = oauth.register(
     authorize_params=None,
     api_base_url=os.getenv('API_BASE_URL'),
     userinfo_endpoint=os.getenv('USERINFO_ENDPOINT'),
-    client_kwargs={'scope': 'openid email profile'},
+    client_kwargs={'scope': 'openid worker_email profile'},
 )
 
 oauth.yandex = oauth.register(
@@ -107,7 +107,7 @@ oauth.yandex = oauth.register(
             authorize_params=None,
             response_type="code",
             display="popup",
-            scope="login:info login:email",
+            scope="login:info login:worker_email",
         )
 
 app.config['JWT_BLACKLIST_ENABLED'] = True
