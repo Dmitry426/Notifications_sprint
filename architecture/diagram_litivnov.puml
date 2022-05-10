@@ -18,9 +18,6 @@ Boundary(sources, "Data"){
     Container(admin_django, "Admin panel", "Django/FastAPI", "Не реализовано.\nОтложенные\nсообщения")
     Container(movies_admin, "Movie admin", 'producer')
     Container(auth_ns, "Auth", "producer")
-
-
-
     }
 
 Component(mail, "Почтовый сервис", "Yandex")

@@ -9,9 +9,8 @@ def on_message(ch, method, properties, body):
     logger.info("Delivery properties: %s, message metadata: %s", method, properties)
     logger.info("Message body: %s", dict_body)
     logger.info(" [x] Received %r" % (dict_body,))
-    logger.info(f"\n\nНаше письмо ушло\n{dict_body['to']}\n\n")
     send_email(dict_body['subject'], dict_body['text'], dict_body['body'], dict_body['to'])
-
+    logger.info(f"\n\nНаше письмо ушло\n{dict_body['to']}\n\n")
     logger.info(" [x] Done")
     ch.basic_ack(delivery_tag=method.delivery_tag)
 
