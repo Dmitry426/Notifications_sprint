@@ -2,8 +2,8 @@ __all__ = ["producer", "consumer", "consumer"]
 
 import backoff
 import pika
-
 from pika.exceptions import AMQPConnectionError
+
 from Configs import config
 from Configs.logger_notifications import logger
 

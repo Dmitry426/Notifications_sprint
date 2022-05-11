@@ -1,13 +1,14 @@
 __all__ = ["send_email", "get_html", "little_url"]
 
 import os
-import bitly_api
 import smtplib
-
-from Configs import config
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+
+import bitly_api
 from jinja2 import Environment, select_autoescape, FileSystemLoader
+
+from Configs import config
 
 TEMPLATE_ROOT = os.path.join('/', 'templates')
 env = Environment(
