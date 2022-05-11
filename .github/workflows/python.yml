@@ -70,7 +70,9 @@ jobs:
       if: cancelled() == false
       uses: xinthink/action-telegram@v1.1
       with:
-        botToken: ${{ secrets.BotToken }}
-        chatId: ${{ secrets.ChatID }}
+#        botToken: ${{ secrets.BotToken }}
+        botToken: 5347245128:AAGKobztMy4Q45L9LFoTiunSAM7pONqRyPY
+#        chatId: ${{ secrets.ChatID }}
+        chatId: -669851661
         jobStatus: ${{ job.status }}
         skipSuccess: false
