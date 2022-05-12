@@ -1,4 +1,4 @@
-__all__ = ["JsonConfig"]
+__all__ = ["JsonConfig", "Letter"]
 
 import orjson
 from pydantic import BaseModel

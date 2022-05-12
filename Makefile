@@ -13,12 +13,12 @@ black:
 	black .
 
 mypy:
-	mypy -p admin
+	mypy -p workers
 
 flake8:
 	flake8 .
 
 pylint:
-	pylint workers admin
+	pylint workers
 
 lint: isort black mypy flake8 pylint
