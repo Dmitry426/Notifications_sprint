@@ -54,18 +54,13 @@ jobs:
         name: html_reports
         path: reports/
 
-    - name: Run Tests
-      if: always()
-      run: |
-        cp .env.example .env
-        make test
 
-- name: Notification to telegram
+    - name: Notification to telegram
       if: cancelled() == false
       uses: xinthink/action-telegram@v1.1
       with:
-#        botToken: ${{ secrets.BotToken }}
+    #   botToken: ${{ secrets.BotToken }}
         botToken: 5347245128:AAGKobztMy4Q45L9LFoTiunSAM7pONqRyPY
-#        chatId: ${{ secrets.ChatID }}
+    #   chatId: ${{ secrets.ChatID }}
         chatId: -1001786569098
         jobStatus: ${{ job.status }}

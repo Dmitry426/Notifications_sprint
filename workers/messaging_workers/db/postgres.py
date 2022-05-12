@@ -7,7 +7,7 @@ from workers.messaging_workers.core.config import settings
 @backoff.on_exception(
     wait_gen=backoff.expo,
     exception=(RuntimeError, TimeoutError, ConnectionError),
-    max_time=30,
+    max_time=settings.max_backoff,
 )
 async def postgres_connect():
     connect = await asyncpg.connect(

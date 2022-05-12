@@ -39,7 +39,7 @@ class ConsumerUgcWebsock(UgcConsumerWebsocket, ABC):
             insert_notification(postgres_connect=self._postgres_conn, data=dict_body)
         )
 
-        logger.info(" [x] Done")
+        logger.info("None - websock notification stored ")
         ch.basic_ack(delivery_tag=method.delivery_tag)
 
     def start_ugc(self) -> None:

@@ -1,5 +1,4 @@
 import os
-from functools import wraps
 
 from authlib.integrations.flask_client import OAuth
 from db.postgresql import init_db

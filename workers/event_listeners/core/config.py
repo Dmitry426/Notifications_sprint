@@ -28,13 +28,17 @@ class Postgres(BaseSettings):
     port = "5432"
 
 
-class Settings(RabbitSettings, Postgres):
+class MailSettings(BaseSettings):
+    bitly_access_token = "0fdd2a8c607818857db17b6109a94de801427a6d"
+
+
+class Settings(RabbitSettings, Postgres, MailSettings):
     """Represents all settings."""
 
     class Config:
         env_prefix = "WORKER_"
 
-    queue: str = "film"
+    max_backoff: int = 30
 
 
 settings = Settings()

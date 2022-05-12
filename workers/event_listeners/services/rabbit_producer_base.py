@@ -30,7 +30,6 @@ class RabbitPublisher(object):
 
     def __init__(self, producer_connection: BlockingConnection):
         self.producer_connection = producer_connection
-        self.channel = None
 
     @backoff.on_exception(
         wait_gen=backoff.expo,
@@ -38,13 +37,13 @@ class RabbitPublisher(object):
         max_time=30,
     )
     def produce(self, body: bytes):
-        self.channel = self.producer_connection.channel()
+        channel = self.producer_connection.channel()
         properties = pika.BasicProperties(delivery_mode=2)
-        self.channel.basic_publish(
+        channel.basic_publish(
             exchange=self.exchange,
             routing_key=self.queue,
             body=body,
             properties=properties,
         )
-        logger.info(" [x] Данные отправлены")
-        self.channel.close()
+        logger.info("None -  Данные отправлены")
+        channel.close()
