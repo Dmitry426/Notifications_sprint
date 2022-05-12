@@ -15,6 +15,7 @@ docker-compose up --build -d
 
 ###Структура проекта:
 `Configs` - файлы настройки<br>
+`Admin_panel` - предполагаемая панель администаротора, описана django orm с данными  <br>
 `architecture` - архитектурная схема<br>
 `flask_app` - сервис Auth<br>
 `templates` - шаблоны для писем<br>
