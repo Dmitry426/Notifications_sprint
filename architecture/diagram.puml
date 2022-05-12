@@ -1,0 +1,111 @@
+@startuml
+!include <logos/postgresql.puml>
+!include <logos/python.puml>
+!include <logos/nginx.puml>
+
+!include <c4/C4_Component.puml>
+
+title Notification Service
+
+LAYOUT_LANDSCAPE()
+
+
+actor Клиент as Client
+actor Админ as Admin
+
+Boundary(sources, "Data"){
+    Container(ugc_ns, "UGC", "producer")
+    Container(admin_django, "Admin panel", "Django/FastAPI", "Не реализовано.\nОтложенные\nсообщения")
+    Container(movies_admin, "Movie admin", 'producer')
+    Container(auth_ns, "Auth", "producer")
+    }
+
+Component(mail, "Почтовый сервис", "Yandex")
+Component(sms, "Сервис СМС", "?")
+Component(push, "Сервис push", "?")
+
+
+
+Container(rabbit_1, "Единое окно", "RabbitMQ", "Очереди\nуведомлений")
+
+Boundary(notification, "Notification Service") {
+
+    Boundary(storage_consumers, "Storage_consumers") {
+        Container(storage_consumer_1, "Storage consumer Welcome", "python", "Читает очередь\nпередает в генератор")
+        Container(storage_consumer_2, "Storage consumer Like", "python", "Читает очередь\nпередает в генератор")
+        Container(storage_consumer_3, "Storage consumer websocket", "python", "Читает очередь\nпишет в БД")
+    }
+
+    ContainerDb(postgresql_ns, "SQL",<$postgresql>" )
+
+    Container(db_consumer_ns, "Generator", "Генератор уведомелений"){
+       Component(notification_producer, "Notification producer", "python", 'Передает в Broker')
+       'Component(db_consumer, "DB consumer", "python", 'Читает из БД')
+       'Component(db_producer, "DB producer", "python", 'Пишет в БД')
+       Component(template, "Templates", "jinja2", 'Шаблоны html')
+       Component(generator, "Genetator", "python", 'Генерирует html/txt\nОбогащает данными')
+       'Component(scheduler, "Scheduler", "python", "По расписанию\nзапускает генератор")
+    }
+
+    ContainerDb(broker, "Broker", "RabbitMQ", "Брокер сообщений")
+    'ContainerDb(postgresql_ns, "База данных", "<$postgresql>", "Хранит\nуведомеления" )
+
+    Boundary(workers, "Workers") {
+        Component(worker_em_ns, "Worker Email", "python")
+        Component(worker_sms_ns, "Worker SMS", "python")
+        Component(worker_push_ns, "Worker Push", "python")
+        Component(websocket, "Сервис websocket", "websocket")
+    }
+
+    rabbit_1 --> storage_consumer_1
+    rabbit_1 --> storage_consumer_2
+    rabbit_1 --> storage_consumer_3
+    'storage_consumer_1 --> db_producer
+    'storage_consumer_2 --> db_producer
+
+    'postgresql_ns <-- db_producer
+    'postgresql_ns <-- db_consumer
+
+    storage_consumer_1 --> generator
+    storage_consumer_2 --> generator
+
+
+    'db_consumer <-- scheduler
+    generator <--> template
+    'scheduler --> generator
+
+
+    broker --> worker_em_ns
+    broker --> worker_sms_ns
+    broker --> worker_push_ns
+    notification_producer --> broker
+    'db_consumer <-- generator
+    generator --> notification_producer
+
+    storage_consumer_3 --> postgresql_ns
+
+
+    worker_em_ns --> mail
+    worker_sms_ns --> sms
+    worker_push_ns --> push
+}
+
+Admin --> admin_django
+Admin --> movies_admin
+Admin --> auth_ns
+
+auth_ns --> rabbit_1
+ugc_ns --> rabbit_1
+movies_admin --> rabbit_1
+admin_django --> rabbit_1
+
+postgresql_ns --> websocket
+
+mail --> Client
+sms --> Client
+push --> Client
+websocket --> Client
+
+'db_producer <-- workers
+
+@enduml

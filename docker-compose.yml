@@ -84,9 +84,9 @@ services:
   postgres:
     image: postgres:13.0-alpine
     environment:
-      POSTGRES_USER: ${PG_USER}
-      POSTGRES_PASSWORD: ${PG_PASSWORD}
-      POSTGRES_DB: ${PG_DBNAME}
+      POSTGRES_USER: ${RABBIT_DB_USER}
+      POSTGRES_PASSWORD: ${RABBIT_DB_PASSWORD}
+      POSTGRES_DB: ${RABBIT_DB_NAME}
     volumes:
       - postgres_volume:/var/lib/postgresql/data/
       - ./Configs/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
