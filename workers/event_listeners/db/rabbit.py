@@ -9,7 +9,7 @@ from workers.event_listeners.core.config import settings
 @backoff.on_exception(
     wait_gen=backoff.expo,
     exception=(RuntimeError, TimeoutError, AMQPConnectionError),
-    max_time=30,
+    max_time=settings.max_backoff,
 )
 def rabbit_conn_consume() -> BlockingConnection:
     credentials = pika.PlainCredentials(

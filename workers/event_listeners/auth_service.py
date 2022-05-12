@@ -6,6 +6,7 @@ from pika.adapters.blocking_connection import BlockingChannel, BlockingConnectio
 from pika.exchange_type import ExchangeType
 from pika.spec import Basic, BasicProperties
 
+from workers.event_listeners.models.auth_event import UserAuth, WellcomeLetter
 from workers.event_listeners.services.base_services import BasicTemplating
 from workers.event_listeners.services.rabbit_consumer_base import RabbitConsumer
 from workers.event_listeners.services.rabbit_producer_base import RabbitPublisher
@@ -40,23 +41,20 @@ class ConsumerAuth(AuthConsumerBase, BasicTemplating, ABC):
         properties: BasicProperties,
         body: bytes,
     ) -> None:
-        dict_body = json.loads(body)
-        logger.info("Delivery properties: %s, message metadata: %s", method, properties)
-        letter = self.get_template(dict_body, template_name="welcome.html")
-        text = (
-            f"Приветствуем,{dict_body['user']}\nСкопируйте и вставьте следующий адрес"
-            + f" в свой веб-браузер: {dict_body['link']}"
+        dict_body = UserAuth(**json.loads(body))
+        logger.info(
+            "None - Delivery properties: %s, message metadata: %s", method, properties
+        )
+        letter = self.get_template(dict_body.dict(), template_name="welcome.html")
+        text = """Приветствуем,'%s'\nСкопируйте и вставьте следующий адрес"
+             в свой веб-браузер: '%s' """ % (
+            dict_body.user,
+            dict_body.link,
         )
 
-        data = {
-            "subject": "Welcome letter",
-            "text": text,
-            "body": letter,
-            "to": dict_body["email"],
-        }
-        data_json = json.dumps(data)
-        self._producer.produce(body=data_json.encode("utf-8"))
-        logger.info(" [x] Done")
+        data = WellcomeLetter(body=letter, text=text, to=dict_body.email)
+        self._producer.produce(body=data.to_json())
+        logger.info("None - Message is templated ")
         ch.basic_ack(delivery_tag=method.delivery_tag)
 
     def start_auth(self):
