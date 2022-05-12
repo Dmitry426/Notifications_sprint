@@ -7,7 +7,7 @@ class RabbitSettings(BaseSettings):
     """Represents Kafka settings."""
 
     class Config:
-        env_prefix = "WORKER_"
+        env_prefix = "RABBIT_"
 
     r_host: str = "localhost"
     r_backoff_timeout: int = 30
@@ -27,7 +27,7 @@ class Postgres(BaseSettings):
     """Represents Postgres settings."""
 
     class Config:
-        env_prefix = "PG_"
+        env_prefix = "RABBIT_DB_"
 
     user = "user"
     dbname = "notifications"
