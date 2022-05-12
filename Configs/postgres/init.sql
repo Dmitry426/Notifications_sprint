@@ -1,24 +1,11 @@
----- schema.sql
----- Since we might run the import many times we'll drop if exists
---DROP DATABASE IF EXISTS data;
---
---CREATE DATABASE data;
---
---\c data;
---
---
---CREATE TABLE IF NOT EXISTS user_loh (
---  id SERIAL PRIMARY KEY,
---  username VARCHAR,
---  email VARCHAR
---);
---
---
---CREATE TABLE IF NOT EXISTS post (
---  id SERIAL PRIMARY KEY,
---  userId INTEGER REFERENCES user_loh(id),
---  title VARCHAR,
---  content TEXT,
---  image VARCHAR,
---  date DATE DEFAULT CURRENT_DATE
---);
+CREATE SCHEMA IF NOT EXISTS events;
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+CREATE TABLE IF NOT EXISTS events.notifications(
+    id uuid PRIMARY KEY  DEFAULT gen_random_uuid(),
+    user_id uuid NOT NULL,
+    body TEXT NOT NULL,
+    is_read boolean DEFAULT FALSE,
+    created_at timestamptz DEFAULT NOW(),
+    updated_at timestamptz DEFAULT NOW()
+);

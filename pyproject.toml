@@ -11,6 +11,13 @@ backoff = "^2.0.1"
 pydantic = "^1.9.0"
 mypy = "^0.950"
 flake8 = "^4.0.1"
+orjson = "^3.6.8"
+Jinja2 = "^3.1.2"
+bitly-api-py3 = "^0.3"
+requests = "^2.27.1"
+asyncpg = "^0.25.0"
+websockets = "^10.3"
+PyJWT = "^2.3.0"
 
 [tool.poetry.dev-dependencies]
 pika = "^1.2.1"

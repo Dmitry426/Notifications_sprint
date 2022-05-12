@@ -15,8 +15,21 @@ class RabbitSettings(BaseSettings):
     r_password: str = "pass1"
 
 
-class Settings(RabbitSettings):
-    """Represents ETL settings."""
+class Postgres(BaseSettings):
+    """Represents Postgres settings."""
+
+    class Config:
+        env_prefix = "PG_"
+
+    user = "user"
+    dbname = "notifications"
+    password = "password"
+    host = "postgres"
+    port = "5432"
+
+
+class Settings(RabbitSettings, Postgres):
+    """Represents all settings."""
 
     class Config:
         env_prefix = "WORKER_"
