@@ -54,11 +54,6 @@ jobs:
         name: html_reports
         path: reports/
 
-    - name: Run Tests
-      if: always()
-      run: |
-        cp .env.example .env
-        make test
 
     - name: Notification to telegram
       if: cancelled() == false
