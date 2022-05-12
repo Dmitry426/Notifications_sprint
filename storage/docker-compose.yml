@@ -1,0 +1,12 @@
+services:
+  storage_rabbitmq:
+    container_name: "storage"
+    image: rabbitmq:3.8-management-alpine
+    volumes:
+      - ./config/rabbitmq.config:/etc/rabbitmq/rabbitmq.config:ro
+      - ./config/definitions.json:/etc/rabbitmq/definitions.json:ro
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+#    env_file:
+#      - ./.env
