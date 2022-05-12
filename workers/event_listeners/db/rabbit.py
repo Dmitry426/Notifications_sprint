@@ -1,5 +1,6 @@
 import backoff
 import pika
+from pika import BlockingConnection
 from pika.exceptions import AMQPConnectionError
 
 from workers.event_listener.core.config import settings
@@ -10,7 +11,7 @@ from workers.event_listener.core.config import settings
     exception=(RuntimeError, TimeoutError, AMQPConnectionError),
     max_time=30,
 )
-def rabbit_conn():
+def rabbit_conn_consume() -> BlockingConnection:
     credentials = pika.PlainCredentials(
         username=settings.r_name, password=settings.r_password
     )

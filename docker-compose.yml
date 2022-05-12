@@ -1,27 +1,73 @@
 services:
-  event_listener:
+  event_listener_auth:
     build:
       context: .
       dockerfile: ./Dockerfiles/workers/Dockerfile
       target: development
     env_file:
       - ./.env
-    command: [ "python", "-m", "workers.event_listener"]
+    command: [ "python", "-m", "workers.event_listeners" , "--queue" , "auth" ]
     volumes:
-      - "./workers/event_listener:/src/workers/event_listener"
-    links:
-      - postgres
+      - "./workers/event_listeners:/src/workers/event_listeners"
+      - "./templates:/src/templates"
+    depends_on:
+      - rabbitmq
 
-  admin:
+  event_listener_ugc:
     build:
-      context: ./admin
-      dockerfile: ../Dockerfiles/admin/Dockerfile
+      context: .
+      dockerfile: ./Dockerfiles/workers/Dockerfile
       target: development
-    volumes:
-      - "./admin:/src/admin"
-#    command: gunicorn config.wsgi:application --bind 0.0.0.0:4000
     env_file:
       - ./.env
+    command: [ "python", "-m", "workers.event_listeners" , "--queue" , "ugc" ]
+    volumes:
+      - "./workers/event_listeners:/src/workers/event_listeners"
+      - "./templates:/src/templates"
+    depends_on:
+      - rabbitmq
+
+  event_listener_websock:
+    build:
+      context: .
+      dockerfile: ./Dockerfiles/workers/Dockerfile
+      target: development
+    env_file:
+      - ./.env
+    command: [ "python", "-m", "workers.event_listeners" , "--queue" , "ugc_websocket" ]
+    volumes:
+      - "./workers/event_listeners:/src/workers/event_listeners"
+    depends_on:
+      - postgres
+      - rabbitmq
+
+  websocket_server:
+    build:
+      context: .
+      dockerfile: ./Dockerfiles/workers/Dockerfile
+      target: development
+    env_file:
+      - ./.env
+    command: [ "python", "-m", "workers.messaging_workers" , "--type" , "websocket" ]
+    volumes:
+      - "./workers/messaging_workers:/src/workers/messaging_workers"
+    depends_on:
+      - postgres
+      - rabbitmq
+
+  websocket_mail:
+    build:
+      context: .
+      dockerfile: ./Dockerfiles/workers/Dockerfile
+      target: development
+    env_file:
+      - ./.env
+    command: [ "python", "-m", "workers.messaging_workers" , "--type" , "mail" ]
+    volumes:
+      - "./workers/messaging_workers:/src/workers/messaging_workers"
+    depends_on:
+      - rabbitmq
+
 
   rabbitmq:
     container_name: "rabbitmq"
@@ -49,15 +95,7 @@ services:
     expose:
       - 5432
 
-#  nginx:
-#    image: nginx
-#    ports:
-#      - "80:80"
-#    volumes:
-#      - ./Configs/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-#    depends_on:
-#      - admin
-#
+
 volumes:
   postgres_volume:
     driver: local
