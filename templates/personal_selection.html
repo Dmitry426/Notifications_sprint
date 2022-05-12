@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}
+Personal selection
+{% endblock %}
+{% block body %}
+    Вот и вечер пятницы, а это значит, что вам не до почтовых рассылок.<br>
+    Но если вдруг что-нибудь сорвется, и заказав любимую пиццу вы пожелаете посмотреть
+    что-то на свой вкус, то мы подготовили для вас
+    <br style="line-height:inherit">
+    <br style="line-height:inherit">
+    <div style="background: #1c1e1e; text-align: center; color:#fcce0a;font-size:21px;font-weight: bold;
+    padding: 7px 0">персональную подборку:</div>
+    <div style="text-align: center; line-height:inherit;padding:20px 10px 30px 10px">
+        {{selection}}
+    </div>
+    <br style="line-height:inherit">
+    <br style="line-height:inherit">
+    Спасибо, что вы являетесь пользователем нашего кинотеатра.
+    <br style="line-height:inherit">
+{% endblock %}
