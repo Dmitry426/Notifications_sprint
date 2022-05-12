@@ -36,7 +36,12 @@ class Postgres(BaseSettings):
     port = "5432"
 
 
-class Settings(RabbitSettings, MailSettings, Postgres):
+class Websocket(BaseSettings):
+    ws_host = "0.0.0.0"
+    ws_port = 8765
+
+
+class Settings(RabbitSettings, MailSettings, Postgres, Websocket):
     """Represents all settings."""
 
     class Config:

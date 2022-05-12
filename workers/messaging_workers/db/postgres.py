@@ -1,7 +1,7 @@
 import asyncpg
 import backoff
 
-from workers.event_listeners.core.config import settings
+from workers.messaging_workers.core.config import settings
 
 
 @backoff.on_exception(
@@ -11,5 +11,6 @@ from workers.event_listeners.core.config import settings
 )
 async def postgres_connect():
     connect = await asyncpg.connect(
-        f'postgres://{settings.user}:{settings.password}@{settings.host}:{settings.port}/{settings.dbname}')
+        f"postgres://{settings.user}:{settings.password}@{settings.host}:{settings.port}/{settings.dbname}"
+    )
     return connect
