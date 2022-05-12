@@ -62,7 +62,7 @@ Boundary(notification, "Notification Service") {
     rabbit_1 --> storage_consumer_3
     'storage_consumer_1 --> db_producer
     'storage_consumer_2 --> db_producer
-    
+
     'postgresql_ns <-- db_producer
     'postgresql_ns <-- db_consumer
 
@@ -83,7 +83,7 @@ Boundary(notification, "Notification Service") {
     generator --> notification_producer
 
     storage_consumer_3 --> postgresql_ns
-    
+
 
     worker_em_ns --> mail
     worker_sms_ns --> sms

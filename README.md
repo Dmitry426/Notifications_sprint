@@ -1,13 +1,10 @@
 # Notifications_Service
 
-## Ссылка на проект
-https://github.com/Dmitry426/Notifications_sprint
 
 ## Запуск проекта
 Собираем и стартуем три `docker-compose` в папках:
-- storage
+
 - flask_app
-- /
 ```bash
 docker-compose up --build -d
 ```
@@ -18,18 +15,14 @@ docker-compose up --build -d
 
 ###Структура проекта:
 `Configs` - файлы настройки<br>
-`admin_panel` - заготовка под админку на Django (в рамках проекта не поднимается). Описана БД.<br>
 `architecture` - архитектурная схема<br>
 `flask_app` - сервис Auth<br>
-`services` - общий код для продюсеров и консюмеров<br>
-`storage` - настройка хранилища RabbitMQ<br>
-`storage_consumers` - консюмеры Хранилища<br>
 `templates` - шаблоны для писем<br>
-`websocket_server` - websocket<br>
-`workers` - консюмер для отправки Email<br>
+`workers/messaging_workers` - консюмер для отправки Email,Websocket<br>
+`workers/event_listeners` - слушатели отчетных событий<br>
 
 <b>Договоренность:</b> админ-панель сервиса уведомлений, позволяющая отправлять отложенные
-и регулярные уведомления, все данные для генерации писем передает через "Единое окно" 
+и регулярные уведомления, все данные для генерации писем передает через "Единое окно"
 (В рамках проекта не было задачи реализации "админки").
 
 <b>Тестирование:</b><br>

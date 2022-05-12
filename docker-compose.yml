@@ -1,53 +1,101 @@
 services:
-  storage_consumer_welcome:
+  event_listener_auth:
     build:
       context: .
-      dockerfile: ./storage_consumers/welcome/Dockerfile
+      dockerfile: ./Dockerfiles/workers/Dockerfile
+      target: development
     env_file:
       - ./.env
+    command: [ "python", "-m", "workers.event_listeners" , "--queue" , "auth" ]
+    volumes:
+      - "./workers/event_listeners:/src/workers/event_listeners"
+      - "./templates:/src/templates"
+    depends_on:
+      - rabbitmq
 
-  storage_consumer_bookmarks:
+  event_listener_ugc:
     build:
       context: .
-      dockerfile: ./storage_consumers/bookmarks/Dockerfile
+      dockerfile: ./Dockerfiles/workers/Dockerfile
+      target: development
     env_file:
       - ./.env
+    command: [ "python", "-m", "workers.event_listeners" , "--queue" , "ugc" ]
+    volumes:
+      - "./workers/event_listeners:/src/workers/event_listeners"
+      - "./templates:/src/templates"
+    depends_on:
+      - rabbitmq
 
-  storage_consumer_websocket_consumer:
+  event_listener_websock:
     build:
       context: .
-      dockerfile: ./storage_consumers/websocket_consumer/Dockerfile
+      dockerfile: ./Dockerfiles/workers/Dockerfile
+      target: development
     env_file:
       - ./.env
-
-  worker_email:
-    build:
-      context: .
-      dockerfile: workers/worker_email/Dockerfile
-    env_file:
-      - ./.env
+    command: [ "python", "-m", "workers.event_listeners" , "--queue" , "ugc_websocket" ]
+    volumes:
+      - "./workers/event_listeners:/src/workers/event_listeners"
+    depends_on:
+      - postgres
+      - rabbitmq
 
   websocket_server:
     build:
       context: .
-      dockerfile: websocket_server/Dockerfile
+      dockerfile: ./Dockerfiles/workers/Dockerfile
+      target: development
     env_file:
       - ./.env
-    ports:
-      - "8765:8765"
-
-  db_notification_10:
-    container_name: db_notification_10
-    image: postgres:13
+    command: [ "python", "-m", "workers.messaging_workers" , "--type" , "websocket" ]
     volumes:
-      - ./pg_data:/var/lib/postgresql/data/
+      - "./workers/messaging_workers:/src/workers/messaging_workers"
+    depends_on:
+      - postgres
+      - rabbitmq
+
+  websocket_mail:
+    build:
+      context: .
+      dockerfile: ./Dockerfiles/workers/Dockerfile
+      target: development
+    env_file:
+      - ./.env
+    command: [ "python", "-m", "workers.messaging_workers" , "--type" , "mail" ]
+    volumes:
+      - "./workers/messaging_workers:/src/workers/messaging_workers"
+    depends_on:
+      - rabbitmq
+
+
+  rabbitmq:
+    container_name: "rabbitmq"
+    image: rabbitmq:3.8-management-alpine
+    volumes:
+      - ./Configs/rabbit/message_event/rabbitmq.config:/etc/rabbitmq/rabbitmq.config:ro
+      - ./Configs/rabbit/message_event/definitions.json:/etc/rabbitmq/definitions.json:ro
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    env_file:
+      - ./.env
+
+  postgres:
+    image: postgres:13.0-alpine
+    environment:
+      POSTGRES_USER: ${RABBIT_DB_USER}
+      POSTGRES_PASSWORD: ${RABBIT_DB_PASSWORD}
+      POSTGRES_DB: ${RABBIT_DB_NAME}
+    volumes:
+      - postgres_volume:/var/lib/postgresql/data/
       - ./Configs/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
     env_file:
-      - .env
-    environment:
-      - POSTGRES_USER=${RABBIT_DB_USER}
-      - POSTGRES_PASSWORD=${RABBIT_DB_PASSWORD}
-      - POSTGRES_DB=${RABBIT_DB_NAME}
-    ports:
-      - "5433:5432"
-    restart: always
+      - ./.env
+    expose:
+      - 5432
+
+
+volumes:
+  postgres_volume:
+    driver: local

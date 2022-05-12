@@ -2,9 +2,9 @@ name: YandexPracticum CI
 
 on:
   push:
-    branches: [ sandbox ]
+    branches: [ main ]
   pull_request:
-    branches: [ sandbox ]
+    branches: [ main ]
 
 jobs:
   build:
@@ -13,7 +13,7 @@ jobs:
     strategy:
       max-parallel: 3
       matrix:
-        python-version: [3.8, 3.9]
+        python-version: [ 3.8, 3.9]
 
     steps:
     - uses: actions/checkout@v2
@@ -37,27 +37,15 @@ jobs:
 
     - name: Create directories
       run: |
-        mkdir -p reports/services/wemake-python-styleguide/        
-        mkdir -p reports/storage_consumers/wemake-python-styleguide/        
-        mkdir -p reports/websocket_server/wemake-python-styleguide/
         mkdir -p reports/workers/wemake-python-styleguide/
-        mkdir -p reports/services/mypy/        
-        mkdir -p reports/storage_consumers/mypy/        
-        mkdir -p reports/websocket_server/mypy/
         mkdir -p reports/workers/mypy/
 
     - name: Lint with wemake-python-styleguide
       run: |
-        flake8 services --exit-zero --format=html --htmldir=reports/services/wemake-python-styleguide/
-        flake8 storage_consumers --exit-zero --format=html --htmldir=reports/storage_consumers/wemake-python-styleguide/
-        flake8 websocket_server --exit-zero --format=html --htmldir=reports/websocket_server/wemake-python-styleguide/
         flake8 workers --exit-zero --format=html --htmldir=reports/workers/wemake-python-styleguide/
 
     - name: Check typing with mypy
       run: |
-        mypy --html-report reports/services/mypy/ ./services || true
-        mypy --html-report reports/storage_consumers/mypy/ ./storage_consumers || true
-        mypy --html-report reports/websocket_server/mypy/ ./websocket_server || true
         mypy --html-report reports/workers/mypy/ ./workers || true
 
     - name: Upload reports
@@ -66,13 +54,17 @@ jobs:
         name: html_reports
         path: reports/
 
+    - name: Run Tests
+      if: always()
+      run: |
+        cp .env_example .env
+        make test
+
     - name: Notification to telegram
       if: cancelled() == false
       uses: xinthink/action-telegram@v1.1
       with:
-#        botToken: ${{ secrets.BotToken }}
-        botToken: 5347245128:AAGKobztMy4Q45L9LFoTiunSAM7pONqRyPY
-#        chatId: ${{ secrets.ChatID }}
-        chatId: -1001786569098
+        botToken: ${{ secrets.BotToken }}
+        chatId: ${{ secrets.ChatID }}
         jobStatus: ${{ job.status }}
         skipSuccess: false
