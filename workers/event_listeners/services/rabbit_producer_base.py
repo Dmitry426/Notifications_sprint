@@ -1,6 +1,8 @@
-import logging
+__all__ = ["RabbitPublisher"]
 
+import logging
 from abc import abstractmethod
+
 import backoff
 import pika
 from pika import BlockingConnection
@@ -35,15 +37,14 @@ class RabbitPublisher(object):
         exception=(RuntimeError, TimeoutError, AMQPConnectionError),
         max_time=30,
     )
-    def produce(self, body:bytes) -> None:
+    def produce(self, body: bytes):
         self.channel = self.producer_connection.channel()
-        properties = pika.BasicProperties(
-            delivery_mode=2
+        properties = pika.BasicProperties(delivery_mode=2)
+        self.channel.basic_publish(
+            exchange=self.exchange,
+            routing_key=self.queue,
+            body=body,
+            properties=properties,
         )
-        self.channel.basic_publish(exchange=self.exchange,
-                                   routing_key=self.queue,
-                                   body=body,
-                                   properties=properties,
-                                   )
-        logger.info("\n\n [x] Данные отправлены\n\n")
+        logger.info(" [x] Данные отправлены")
         self.channel.close()

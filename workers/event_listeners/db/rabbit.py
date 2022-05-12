@@ -3,7 +3,7 @@ import pika
 from pika import BlockingConnection
 from pika.exceptions import AMQPConnectionError
 
-from workers.event_listener.core.config import settings
+from workers.event_listeners.core.config import settings
 
 
 @backoff.on_exception(

@@ -2,7 +2,7 @@ from datetime import datetime
 
 from pydantic.validators import UUID, Enum
 
-from workers.event_listener.models.base import JsonConfig
+from workers.event_listeners.models.base import JsonConfig
 
 
 class Choices(Enum):
@@ -18,4 +18,3 @@ class User(JsonConfig):
     LastName: str
     ContactType: Choices
     created: datetime
-

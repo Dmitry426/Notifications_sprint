@@ -1,11 +1,11 @@
 from uuid import uuid4
 
-from pydantic import Field, BaseModel
+from pydantic import BaseModel, Field
 from pydantic.validators import UUID
 
 
-class User(BaseModel):
-    id_: UUID = Field(default_factory=uuid4)
+class UserWebsock(BaseModel):
+    id: UUID = Field(default_factory=uuid4)
     user_id: UUID
     body: str
-    is_read: bool = Field(default_factory=False)
+    is_read: bool = False

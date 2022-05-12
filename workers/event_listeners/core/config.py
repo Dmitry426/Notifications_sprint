@@ -15,27 +15,21 @@ class RabbitSettings(BaseSettings):
     r_password: str = "pass1"
 
 
-class MailSettings(BaseSettings):
-    from_mail = "pastseason.ru@gmail.com"
-    mail_password = "lzimqxbqvzxukjnv"
-    mail_smtp = "smtp.gmail.com"
-    mail_smtp_port = "587"
-    bitly_access_token = "0fdd2a8c607818857db17b6109a94de801427a6d"
-
-
 class Postgres(BaseSettings):
+    """Represents Postgres settings."""
+
     class Config:
         env_prefix = "PG_"
 
     user = "user"
-    dbname = " name"
+    dbname = "notifications"
     password = "password"
     host = "postgres"
     port = "5432"
 
 
-class Settings(RabbitSettings, MailSettings, Postgres):
-    """Represents ETL settings."""
+class Settings(RabbitSettings, Postgres):
+    """Represents all settings."""
 
     class Config:
         env_prefix = "WORKER_"
