@@ -15,3 +15,10 @@ class JsonConfig(BaseModel):
     class Config:
         json_loads = orjson.loads
         json_dumps = orjson_dumps
+
+
+class Letter(JsonConfig):
+    subject: str
+    body: str
+    to: str
+    text: str

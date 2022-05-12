@@ -3,10 +3,12 @@ __all__ = ["websocket_server"]
 import asyncio
 
 import websockets
+from websockets.legacy.server import WebSocketServerProtocol
 
 from workers.messaging_workers.core import config
 from workers.messaging_workers.core.config import settings
 from workers.messaging_workers.db.postgres import postgres_connect
+from workers.messaging_workers.models.websocket_postgres import UserWebsock
 from workers.messaging_workers.services.base_services import (
     confirm_token,
     get_notifications,
@@ -28,12 +30,13 @@ async def start(websocket):
     while True:
         message = await get_notifications(conn=postgres_connect, user_id=user_id)
         for msg in message:
-            await websocket.send(msg["body"])
-            await update_notification(conn=postgres_connect, id=msg["id"])
+            msg = UserWebsock(**msg)
+            await websocket.send(msg.body)
+            await update_notification(conn=postgres_connect, id=str(msg.id))
         await asyncio.sleep(10)
 
 
-async def receiver(websocket: websockets.WebSocketServerProtocol, path: str) -> None:
+async def receiver(websocket: WebSocketServerProtocol) -> None:
     await start(websocket)
 
 

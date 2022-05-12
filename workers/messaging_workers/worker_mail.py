@@ -8,6 +8,7 @@ from pika.adapters.blocking_connection import BlockingChannel, BlockingConnectio
 from pika.exchange_type import ExchangeType
 from pika.spec import Basic, BasicProperties
 
+from workers.messaging_workers.models.base import Letter
 from workers.messaging_workers.services.mail_service import send_email
 from workers.messaging_workers.services.rabbit_consumer_base import RabbitConsumer
 
@@ -31,12 +32,15 @@ class WorkerMail(WorkerConsumerMail, ABC):
         properties: BasicProperties,
         body: bytes,
     ) -> None:
-        dict_body = json.loads(body)
+        dict_body = Letter(**json.loads(body))
         logger.info("Delivery properties: %s, message metadata: %s", method, properties)
         send_email(
-            dict_body["subject"], dict_body["text"], dict_body["body"], dict_body["to"]
+            subject=dict_body.subject,
+            text=dict_body.text,
+            body=dict_body.body,
+            to=dict_body.to,
         )
-        logger.info(" [x] Done")
+        logger.info(" None - message is sent ")
         ch.basic_ack(delivery_tag=method.delivery_tag)
 
     def start_mailing(self) -> None:
