@@ -37,20 +37,16 @@ jobs:
 
     - name: Create directories
       run: |
-        mkdir -p reports/admin/wemake-python-styleguide/
         mkdir -p reports/workers/wemake-python-styleguide/
-        mkdir -p reports/admin/mypy/
         mkdir -p reports/workers/mypy/
 
     - name: Lint with wemake-python-styleguide
       run: |
-        flake8 admin --exit-zero --format=html --htmldir=reports/ugc_service/wemake-python-styleguide/
-        flake8 workers --exit-zero --format=html --htmldir=reports/etl_events/wemake-python-styleguide/
+        flake8 workers --exit-zero --format=html --htmldir=reports/workers/wemake-python-styleguide/
 
     - name: Check typing with mypy
       run: |
-        mypy --html-report reports/ugc_service/mypy/ ./admin || true
-        mypy --html-report reports/etl_events/mypy/ ./workers || true
+        mypy --html-report reports/workers/mypy/ ./workers || true
 
     - name: Upload reports
       uses: actions/upload-artifact@v3
