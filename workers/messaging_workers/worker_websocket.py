@@ -28,11 +28,13 @@ async def start(websocket):
         return
     user_id = ray_token["sub"]
     while True:
-        message = await get_notifications(conn=postgres_connect, user_id=user_id)
+        message = await get_notifications(
+            postgres_connect=postgres_connect, user_id=user_id
+        )
         for msg in message:
             msg = UserWebsock(**msg)
             await websocket.send(msg.body)
-            await update_notification(conn=postgres_connect, id=str(msg.id))
+            await update_notification(postgres_connect=postgres_connect, id=str(msg.id))
         await asyncio.sleep(10)
 
 

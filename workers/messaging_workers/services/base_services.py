@@ -14,23 +14,22 @@ async def confirm_token(token: str) -> dict[str, any] | bool:
         return False
 
 
-async def get_notifications(conn: connect, user_id: str) -> list:
-    conn = await conn()
-
+async def get_notifications(postgres_connect: connect, user_id: str) -> list:
+    pool = await postgres_connect()
     sql = (
         f"""select body, id from events.notifications
               where user_id = '%s' and is_read = false"""
         % user_id
     )
     try:
-        return await conn.fetch(sql)
+        async with pool.acquire() as conn:
+            return await conn.fetch(sql)
     finally:
-        await conn.close()
+        await pool.close()
 
 
-async def update_notification(conn: connect, id: str) -> str:
-    conn = await conn()
-
+async def update_notification(postgres_connect: connect, id: str) -> str:
+    pool = await postgres_connect()
     sql = (
         f"""update events.notifications set is_read = true
               where id = '%s'
@@ -38,6 +37,7 @@ async def update_notification(conn: connect, id: str) -> str:
         % id
     )
     try:
-        return await conn.execute(sql)
+        async with pool.acquire() as conn:
+            return await conn.execute(sql)
     finally:
-        await conn.close()
+        await pool.close()

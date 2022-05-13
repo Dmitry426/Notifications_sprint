@@ -10,7 +10,12 @@ from workers.messaging_workers.core.config import settings
     max_time=settings.max_backoff,
 )
 async def postgres_connect():
-    connect = await asyncpg.connect(
-        f"postgres://{settings.user}:{settings.password}@{settings.host}:{settings.port}/{settings.dbname}"
+    pool = await asyncpg.create_pool(
+        user=settings.user,
+        password=settings.password,
+        host=settings.host,
+        port=settings.port,
+        database=settings.dbname,
+        max_inactive_connection_lifetime=100,
     )
-    return connect
+    return pool

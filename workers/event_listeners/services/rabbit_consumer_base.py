@@ -1,7 +1,7 @@
 __all__ = ["RabbitConsumer"]
 
 import logging
-from abc import abstractmethod, ABC
+from abc import ABC, abstractmethod
 
 import backoff
 from pika import BasicProperties

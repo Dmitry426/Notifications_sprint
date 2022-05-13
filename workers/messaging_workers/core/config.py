@@ -47,7 +47,7 @@ class Settings(RabbitSettings, MailSettings, Postgres, Websocket):
     class Config:
         env_prefix = "WORKER_"
 
-    queue: str = "film"
+    max_backoff: int = 30
 
 
 settings = Settings()

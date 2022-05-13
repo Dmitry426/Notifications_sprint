@@ -1,6 +1,5 @@
 __all__ = ["BasicTemplating", "insert_notification"]
 
-
 import os
 from urllib.parse import urljoin
 
@@ -36,7 +35,7 @@ class BasicTemplating:
 
 
 async def insert_notification(postgres_connect, data: dict[str, any]) -> str:
-    conn = await postgres_connect()
+    pool = await postgres_connect()
     message = UserWebsock(**data)
     sql = f"""insert into events.notifications
                   ( user_id, body) VALUES
@@ -46,6 +45,7 @@ async def insert_notification(postgres_connect, data: dict[str, any]) -> str:
     )
 
     try:
-        return await conn.execute(sql)
+        async with pool.acquire() as conn:
+            return await conn.execute(sql)
     finally:
-        await conn.close()
+        await pool.close()
