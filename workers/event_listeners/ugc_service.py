@@ -15,7 +15,7 @@ from workers.event_listeners.services.rabbit_producer_base import RabbitPublishe
 logger = logging.getLogger(__name__)
 
 
-class AuthConsumerBase(RabbitConsumer, ABC):
+class UgcConsumerBase(RabbitConsumer, ABC):
     exchange = "event"
     exchange_type = ExchangeType.direct
     queue = "ugc_notification"
@@ -27,7 +27,7 @@ class AuthProducerBase(RabbitPublisher, ABC):
     queue = "email"
 
 
-class ConsumerUgc(AuthConsumerBase, BasicTemplating, ABC):
+class ConsumerUgc(UgcConsumerBase, BasicTemplating, ABC):
     def __init__(
         self, write_connection: BlockingConnection, read_connection: BlockingConnection
     ):
@@ -69,4 +69,4 @@ class ConsumerUgc(AuthConsumerBase, BasicTemplating, ABC):
         ch.basic_ack(delivery_tag=method.delivery_tag)
 
     def start_ugc(self) -> None:
-        super(AuthConsumerBase, self).consume()
+        super(UgcConsumerBase, self).consume()
