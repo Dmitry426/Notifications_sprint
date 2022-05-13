@@ -21,7 +21,7 @@ class WorkerConsumerMail(RabbitConsumer, ABC):
     queue = "email"
 
 
-class WorkerMail(WorkerConsumerMail, ABC):
+class WorkerMail(WorkerConsumerMail):
     def __init__(self, read_connection: BlockingConnection):
         super().__init__(read_connection)
 

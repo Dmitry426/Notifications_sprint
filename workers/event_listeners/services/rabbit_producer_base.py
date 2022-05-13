@@ -1,7 +1,7 @@
 __all__ = ["RabbitPublisher"]
 
 import logging
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 
 import backoff
 import pika
@@ -9,10 +9,12 @@ from pika import BlockingConnection
 from pika.exceptions import AMQPConnectionError
 from pika.exchange_type import ExchangeType
 
+from workers.event_listeners.core.config import settings
+
 logger = logging.getLogger(__name__)
 
 
-class RabbitPublisher(object):
+class RabbitPublisher(ABC):
     @property
     @abstractmethod
     def exchange(self) -> str:
@@ -34,7 +36,7 @@ class RabbitPublisher(object):
     @backoff.on_exception(
         wait_gen=backoff.expo,
         exception=(RuntimeError, TimeoutError, AMQPConnectionError),
-        max_time=30,
+        max_time=settings.max_backoff,
     )
     def produce(self, body: bytes):
         channel = self.producer_connection.channel()

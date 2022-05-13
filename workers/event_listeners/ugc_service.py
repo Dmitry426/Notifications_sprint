@@ -27,7 +27,7 @@ class AuthProducerBase(RabbitPublisher, ABC):
     queue = "email"
 
 
-class ConsumerUgc(UgcConsumerBase, BasicTemplating, ABC):
+class ConsumerUgc(UgcConsumerBase, BasicTemplating):
     def __init__(
         self, write_connection: BlockingConnection, read_connection: BlockingConnection
     ):

@@ -19,7 +19,7 @@ class UgcConsumerWebsocket(RabbitConsumer, ABC):
     queue = "ugc_notification.websocket"
 
 
-class ConsumerUgcWebsock(UgcConsumerWebsocket, ABC):
+class ConsumerUgcWebsock(UgcConsumerWebsocket):
     def __init__(self, read_connection: BlockingConnection, postgres_connection):
         super().__init__(read_connection)
         self._postgres_conn = postgres_connection

@@ -1,7 +1,7 @@
 __all__ = ["RabbitConsumer"]
 
 import logging
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 
 import backoff
 from pika import BasicProperties
@@ -10,10 +10,12 @@ from pika.exceptions import AMQPConnectionError
 from pika.exchange_type import ExchangeType
 from pika.spec import Basic
 
+from workers.messaging_workers.core.config import settings
+
 logger = logging.getLogger(__name__)
 
 
-class RabbitConsumer(object):
+class RabbitConsumer(ABC):
     @property
     @abstractmethod
     def exchange(self) -> str:
@@ -36,7 +38,7 @@ class RabbitConsumer(object):
     @backoff.on_exception(
         wait_gen=backoff.expo,
         exception=(RuntimeError, TimeoutError, AMQPConnectionError),
-        max_time=30,
+        max_time=settings.max_backoff,
     )
     def consume(self):
         self.channel = self.consumer_connection.channel()
