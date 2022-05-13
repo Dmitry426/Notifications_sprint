@@ -1,7 +1,7 @@
 import asyncpg
 import backoff
 
-from workers.event_listeners.core.config import settings
+from workers.workers.core.config import settings
 
 
 @backoff.on_exception(

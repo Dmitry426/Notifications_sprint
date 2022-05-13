@@ -11,11 +11,18 @@ def mail_service():
     consumer.start_mailing()
 
 
+def websocket_service():
+    """Main method."""
+    websocket_server()
+
+
 if __name__ == "__main__":
+    types = {
+        "mail": mail_service,
+        "websocket": websocket_service,
+    }
+
     parser = argparse.ArgumentParser()
-    parser.add_argument("--type", choices=("mail", "websocket"))
+    parser.add_argument("-t", "--type", choices=types.keys(), required=True)
     args = parser.parse_args()
-    if args.type == "mail":
-        mail_service()
-    if args.type == "websocket":
-        websocket_server()
+    types[args.type]()
