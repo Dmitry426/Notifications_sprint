@@ -2,7 +2,6 @@ __all__ = ["BasicTemplating", "insert_notification"]
 
 
 import os
-from typing import Any, Dict
 from urllib.parse import urljoin
 
 import bitly_api
@@ -31,12 +30,12 @@ class BasicTemplating:
         return short_url["url"]
 
     @staticmethod
-    def get_data(url: str, user_id: str) -> Dict[str, Any]:
+    def get_data(url: str, user_id: str) -> dict[str, any]:
         response = requests.get(urljoin(url, user_id))
         return response.json()
 
 
-async def insert_notification(postgres_connect, data: Dict[str, Any]) -> str:
+async def insert_notification(postgres_connect, data: dict[str, any]) -> str:
     conn = await postgres_connect()
     message = UserWebsock(**data)
     sql = f"""insert into events.notifications
