@@ -1,7 +1,7 @@
 __all__ = ["RabbitConsumer"]
 
 import logging
-from abc import abstractmethod
+from abc import abstractmethod, ABC
 
 import backoff
 from pika import BasicProperties
@@ -13,7 +13,7 @@ from pika.spec import Basic
 logger = logging.getLogger(__name__)
 
 
-class RabbitConsumer(object):
+class RabbitConsumer(ABC):
     @property
     @abstractmethod
     def exchange(self) -> str:
