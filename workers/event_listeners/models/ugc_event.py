@@ -1,4 +1,3 @@
-from typing import List
 from uuid import uuid4
 
 from pydantic import BaseModel, Field
@@ -17,7 +16,7 @@ class Bookmark(JsonConfig):
     link_out: str
     link: str
     serial_name: str
-    users: List[User]
+    users: list[User]
 
 
 class BookmarkTemplateData(JsonConfig):
