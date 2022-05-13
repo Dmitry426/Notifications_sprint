@@ -32,12 +32,13 @@ def ugc_service_websock():
 
 
 if __name__ == "__main__":
+    queues = {
+        "auth": auth_service,
+        "ugc": ugc_service,
+        "ugc_websocket": ugc_service_websock,
+    }
+
     parser = argparse.ArgumentParser()
-    parser.add_argument("--queue", choices=("auth", "ugc", "ugc_websocket"))
+    parser.add_argument("-q", "--queue", choices=queues.keys(), required=True)
     args = parser.parse_args()
-    if args.queue == "auth":
-        auth_service()
-    if args.queue == "ugc":
-        ugc_service()
-    if args.queue == "ugc_websocket":
-        ugc_service_websock()
+    queues[args.queue]()
