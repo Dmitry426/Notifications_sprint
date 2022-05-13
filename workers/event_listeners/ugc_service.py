@@ -56,12 +56,9 @@ class ConsumerUgc(AuthConsumerBase, BasicTemplating, ABC):
             )
 
             letter = self.get_template(data_template.dict(), "bookmarks.html")
-            text = """Приветствуем,'%s' \n новую серию '%s'.
-                \nСерия доступна по ссылке: '%s'""" % (
-                user.name,
-                dict_body.serial_name,
-                dict_body.link,
-            )
+            text = f"Приветствуем, {user.name}\n" + \
+                   f" Вышла новая серия сериала «{dict_body.serial_name}»" + \
+                   f".\nСерия доступна по ссылке:{dict_body.link}"
             greet = f"Вышла новая серия сериала {dict_body.serial_name}"
             data = Letter(subject=greet, body=letter, text=text, to=user.email)
             self._producer.produce(body=data.to_json())
