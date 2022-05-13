@@ -50,5 +50,4 @@ class Settings(RabbitSettings, MailSettings, Postgres, Websocket):
     max_backoff: int = 30
 
 
-
 settings = Settings()
