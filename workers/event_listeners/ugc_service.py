@@ -15,7 +15,7 @@ from workers.event_listeners.services.rabbit_producer_base import RabbitPublishe
 logger = logging.getLogger(__name__)
 
 
-class AuthConsumerBase(RabbitConsumer, ABC):
+class UgcConsumerBase(RabbitConsumer, ABC):
     exchange = "event"
     exchange_type = ExchangeType.direct
     queue = "ugc_notification"
@@ -27,7 +27,7 @@ class AuthProducerBase(RabbitPublisher, ABC):
     queue = "email"
 
 
-class ConsumerUgc(AuthConsumerBase, BasicTemplating, ABC):
+class ConsumerUgc(UgcConsumerBase, BasicTemplating, ABC):
     def __init__(
         self, write_connection: BlockingConnection, read_connection: BlockingConnection
     ):
@@ -56,12 +56,9 @@ class ConsumerUgc(AuthConsumerBase, BasicTemplating, ABC):
             )
 
             letter = self.get_template(data_template.dict(), "bookmarks.html")
-            text = """Приветствуем,'%s' \n новую серию '%s'.
-                \nСерия доступна по ссылке: '%s'""" % (
-                user.name,
-                dict_body.serial_name,
-                dict_body.link,
-            )
+            text = f"Приветствуем, {user.name}\n" + \
+                   f" Вышла новая серия сериала «{dict_body.serial_name}»" + \
+                   f".\nСерия доступна по ссылке:{dict_body.link}"
             greet = f"Вышла новая серия сериала {dict_body.serial_name}"
             data = Letter(subject=greet, body=letter, text=text, to=user.email)
             self._producer.produce(body=data.to_json())
@@ -69,4 +66,4 @@ class ConsumerUgc(AuthConsumerBase, BasicTemplating, ABC):
         ch.basic_ack(delivery_tag=method.delivery_tag)
 
     def start_ugc(self) -> None:
-        super(AuthConsumerBase, self).consume()
+        super(UgcConsumerBase, self).consume()
