@@ -8,10 +8,12 @@ services:
       - ./.env
     command: [ "python", "-m", "workers.event_listeners" , "--queue" , "auth" ]
     volumes:
-      - "./workers/event_listeners:/src/workers/event_listeners"
+      - "./services/workers/event_listeners:/src/workers/event_listeners"
       - "./templates:/src/templates"
+      - "auth_listener_logs:/src/logs"
     depends_on:
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
 
   event_listener_ugc:
     build:
@@ -22,10 +24,12 @@ services:
       - ./.env
     command: [ "python", "-m", "workers.event_listeners" , "--queue" , "ugc" ]
     volumes:
-      - "./workers/event_listeners:/src/workers/event_listeners"
+      - "./services/workers/event_listeners:/src/workers/event_listeners"
       - "./templates:/src/templates"
+      - "ugc_listener_logs:/src/logs"
     depends_on:
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
 
   event_listener_websock:
     build:
@@ -36,10 +40,13 @@ services:
       - ./.env
     command: [ "python", "-m", "workers.event_listeners" , "--queue" , "ugc_websocket" ]
     volumes:
-      - "./workers/event_listeners:/src/workers/event_listeners"
+      - "./services/workers/event_listeners:/src/workers/event_listeners"
+      - "websocket_listener_logs:/src/logs"
     depends_on:
-      - postgres
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
 
   websocket_server:
     build:
@@ -50,10 +57,14 @@ services:
       - ./.env
     command: [ "python", "-m", "workers.messaging_workers" , "--type" , "websocket" ]
     volumes:
-      - "./workers/messaging_workers:/src/workers/messaging_workers"
+      - "./services/workers/messaging_workers:/src/workers/messaging_workers"
     depends_on:
-      - postgres
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+
+
 
   websocket_mail:
     build:
@@ -64,34 +75,42 @@ services:
       - ./.env
     command: [ "python", "-m", "workers.messaging_workers" , "--type" , "mail" ]
     volumes:
-      - "./workers/messaging_workers:/src/workers/messaging_workers"
+      - "./services/workers/messaging_workers:/src/workers/messaging_workers"
+      - "mail_service_logs:/src/logs"
     depends_on:
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
 
 
   rabbitmq:
     container_name: "rabbitmq"
     image: rabbitmq:3.8-management-alpine
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 30s
+      retries: 3
     volumes:
       - ./Configs/rabbit/message_event/rabbitmq.config:/etc/rabbitmq/rabbitmq.config:ro
       - ./Configs/rabbit/message_event/definitions.json:/etc/rabbitmq/definitions.json:ro
     ports:
       - '5672:5672'
       - '15672:15672'
-    env_file:
-      - ./.env
 
   postgres:
     image: postgres:13.0-alpine
     environment:
-      POSTGRES_USER: ${RABBIT_DB_USER}
-      POSTGRES_PASSWORD: ${RABBIT_DB_PASSWORD}
-      POSTGRES_DB: ${RABBIT_DB_NAME}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DBNAME}
+    healthcheck:
+      test: pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DBNAME}
+      interval: 5s
+      timeout: 20s
+      retries: 5
     volumes:
       - postgres_volume:/var/lib/postgresql/data/
       - ./Configs/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
-    env_file:
-      - ./.env
     expose:
       - 5432
 
@@ -99,3 +118,12 @@ services:
 volumes:
   postgres_volume:
     driver: local
+  mail_service_logs:
+    driver: local
+  websocket_listener_logs:
+    driver: local
+  ugc_listener_logs:
+    driver: local
+  auth_listener_logs:
+    driver: local
+

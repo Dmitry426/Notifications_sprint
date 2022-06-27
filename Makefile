@@ -19,6 +19,6 @@ flake8:
 	flake8 .
 
 pylint:
-	pylint workers
+	pylint services
 
 lint: isort black mypy flake8 pylint

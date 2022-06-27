@@ -15,12 +15,11 @@ docker-compose up --build -d
 
 ###Структура проекта:
 `Configs` - файлы настройки<br>
-`Admin_panel` - предполагаемая панель администаротора, описана django orm с данными  <br>
-`architecture` - архитектурная схема<br>
-`flask_app` - сервис Auth<br>
+`Docs/Admin_panel` - предполагаемая панель администаротора, описана django orm с данными  <br>
+`Docs/architecture` - архитектурная схема<br>
 `templates` - шаблоны для писем<br>
-`workers/messaging_workers` - консюмер для отправки Email,Websocket<br>
-`workers/event_listeners` - слушатели отчетных событий<br>
+`serivices/workers/messaging_workers` - консюмер для отправки Email,Websocket<br>
+`serivices/workers/event_listeners` - слушатели отчетных событий<br>
 
 <b>Договоренность:</b> админ-панель сервиса уведомлений, позволяющая отправлять отложенные
 и регулярные уведомления, все данные для генерации писем передает через "Единое окно"
