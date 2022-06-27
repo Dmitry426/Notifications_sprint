@@ -18,6 +18,9 @@ requests = "^2.27.1"
 asyncpg = "^0.25.0"
 websockets = "^10.3"
 PyJWT = "^2.3.0"
+ecs-logging = "^2.0.0"
+isort = "^5.10.1"
+black = "^22.3.0"
 
 [tool.poetry.dev-dependencies]
 pika = "^1.2.1"
