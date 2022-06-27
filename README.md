@@ -29,6 +29,7 @@ docker-compose up -d
 ```bash
 docker-compose -f docker-compose.prod.yml up -d
 ```
+\
 
 ## Разработка
 
@@ -56,4 +57,3 @@ pyCharm [здесь](https://www.jetbrains.com/help/pycharm/poetry.html).
 
 ## Архитектура проекта
 ![Архитектура проекта](Docs/architecture/img/diagram.png)
-
