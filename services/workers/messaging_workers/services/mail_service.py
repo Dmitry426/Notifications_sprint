@@ -4,12 +4,12 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-from workers.messaging_workers.core.config import settings
+from ..core.config import settings
 
-FROM_MAIL = settings.from_mail
-MAIL_PASSWORD = settings.mail_password
-MAIL_SMTP = settings.mail_smtp
-MAIL_SMTP_PORT = settings.mail_smtp_port
+FROM_MAIL = settings.mail.email_from
+MAIL_PASSWORD = settings.mail.password
+MAIL_SMTP = settings.mail.smtp
+MAIL_SMTP_PORT = settings.mail.smtp_port
 
 
 def send_email(subject, text, body, to):

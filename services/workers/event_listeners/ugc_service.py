@@ -6,13 +6,13 @@ from pika.adapters.blocking_connection import BlockingChannel, BlockingConnectio
 from pika.exchange_type import ExchangeType
 from pika.spec import Basic, BasicProperties
 
-from workers.event_listeners.models.base import Letter
-from workers.event_listeners.models.ugc_event import Bookmark, BookmarkTemplateData
-from workers.event_listeners.services.base_services import BasicTemplating
-from workers.event_listeners.services.rabbit_consumer_base import RabbitConsumer
-from workers.event_listeners.services.rabbit_producer_base import RabbitPublisher
+from .models.base import Letter
+from .models.ugc_event import Bookmark, BookmarkTemplateData
+from .services.base_services import BasicTemplating
+from .services.rabbit_consumer_base import RabbitConsumer
+from .services.rabbit_producer_base import RabbitPublisher
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("ugc_service")
 
 
 class UgcConsumerBase(RabbitConsumer, ABC):
@@ -44,7 +44,7 @@ class ConsumerUgc(UgcConsumerBase, BasicTemplating):
     ) -> None:
         dict_body = Bookmark(**json.loads(body))
         logger.info(
-            "None - Delivery properties: %s, message metadata: %s", method, properties
+            "Delivery properties: %s, message metadata: %s", method, properties
         )
 
         for user in dict_body.users:
@@ -64,7 +64,6 @@ class ConsumerUgc(UgcConsumerBase, BasicTemplating):
             greet = f"Вышла новая серия сериала {dict_body.serial_name}"
             data = Letter(subject=greet, body=letter, text=text, to=user.email)
             self._producer.produce(body=data.to_json())
-        logger.info("None - Message is templated ")
         ch.basic_ack(delivery_tag=method.delivery_tag)
 
     def start_ugc(self) -> None:

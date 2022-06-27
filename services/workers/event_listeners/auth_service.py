@@ -6,12 +6,12 @@ from pika.adapters.blocking_connection import BlockingChannel, BlockingConnectio
 from pika.exchange_type import ExchangeType
 from pika.spec import Basic, BasicProperties
 
-from workers.event_listeners.models.auth_event import UserAuth, WellcomeLetter
-from workers.event_listeners.services.base_services import BasicTemplating
-from workers.event_listeners.services.rabbit_consumer_base import RabbitConsumer
-from workers.event_listeners.services.rabbit_producer_base import RabbitPublisher
+from .models.auth_event import UserAuth, WellcomeLetter
+from .services.base_services import BasicTemplating
+from .services.rabbit_consumer_base import RabbitConsumer
+from .services.rabbit_producer_base import RabbitPublisher
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("auth_service")
 
 
 class AuthConsumerBase(RabbitConsumer, ABC):
@@ -43,7 +43,7 @@ class ConsumerAuth(AuthConsumerBase, BasicTemplating):
     ) -> None:
         dict_body = UserAuth(**json.loads(body))
         logger.info(
-            "None - Delivery properties: %s, message metadata: %s", method, properties
+            " Delivery properties: %s, message metadata: %s", method, properties
         )
         letter = self.get_template(dict_body.dict(), template_name="welcome.html")
         text = """Приветствуем,'%s'\nСкопируйте и вставьте следующий адрес"
@@ -54,7 +54,6 @@ class ConsumerAuth(AuthConsumerBase, BasicTemplating):
 
         data = WellcomeLetter(body=letter, text=text, to=dict_body.email)
         self._producer.produce(body=data.to_json())
-        logger.info("None - Message is templated ")
         ch.basic_ack(delivery_tag=method.delivery_tag)
 
     def start_auth(self):

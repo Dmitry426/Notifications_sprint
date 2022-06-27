@@ -3,7 +3,7 @@ from uuid import uuid4
 from pydantic import BaseModel, Field
 from pydantic.validators import UUID
 
-from workers.event_listeners.models.base import JsonConfig
+from ..models.base import JsonConfig
 
 
 class User(BaseModel):

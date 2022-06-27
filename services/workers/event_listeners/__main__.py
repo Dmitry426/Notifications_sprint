@@ -1,10 +1,14 @@
 import argparse
+from logging import config as logging_config
 
-from workers.event_listeners.auth_service import ConsumerAuth
-from workers.event_listeners.db.postgres import postgres_connect
-from workers.event_listeners.db.rabbit import rabbit_conn_consume
-from workers.event_listeners.ugc_service import ConsumerUgc
-from workers.event_listeners.websocket import ConsumerUgcWebsock
+from .auth_service import ConsumerAuth
+from .core.logger import LOGGING
+from .db.postgres import postgres_connect
+from .db.rabbit import rabbit_conn_consume
+from .ugc_service import ConsumerUgc
+from .websocket import ConsumerUgcWebsock
+
+logging_config.dictConfig(LOGGING)
 
 
 def auth_service():

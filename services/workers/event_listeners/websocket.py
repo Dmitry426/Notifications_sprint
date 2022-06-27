@@ -7,10 +7,10 @@ from pika.adapters.blocking_connection import BlockingChannel, BlockingConnectio
 from pika.exchange_type import ExchangeType
 from pika.spec import Basic, BasicProperties
 
-from workers.event_listeners.services.base_services import insert_notification
-from workers.event_listeners.services.rabbit_consumer_base import RabbitConsumer
+from .services.base_services import insert_notification
+from .services.rabbit_consumer_base import RabbitConsumer
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("websocket_service")
 
 
 class UgcConsumerWebsocket(RabbitConsumer, ABC):
@@ -38,8 +38,6 @@ class ConsumerUgcWebsock(UgcConsumerWebsocket):
         asyncio.run(
             insert_notification(postgres_connect=self._postgres_conn, data=dict_body)
         )
-
-        logger.info("None - websock notification stored ")
         ch.basic_ack(delivery_tag=method.delivery_tag)
 
     def start_ugc(self) -> None:

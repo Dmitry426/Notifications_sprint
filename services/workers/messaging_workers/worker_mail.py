@@ -8,11 +8,11 @@ from pika.adapters.blocking_connection import BlockingChannel, BlockingConnectio
 from pika.exchange_type import ExchangeType
 from pika.spec import Basic, BasicProperties
 
-from workers.messaging_workers.models.base import Letter
-from workers.messaging_workers.services.mail_service import send_email
-from workers.messaging_workers.services.rabbit_consumer_base import RabbitConsumer
+from .models.base import Letter
+from .services.mail_service import send_email
+from .services.rabbit_consumer_base import RabbitConsumer
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("email_service")
 
 
 class WorkerConsumerMail(RabbitConsumer, ABC):
@@ -40,7 +40,6 @@ class WorkerMail(WorkerConsumerMail):
             body=dict_body.body,
             to=dict_body.to,
         )
-        logger.info(" None - message is sent ")
         ch.basic_ack(delivery_tag=method.delivery_tag)
 
     def start_mailing(self) -> None:

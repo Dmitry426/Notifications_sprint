@@ -7,8 +7,8 @@ import bitly_api
 import requests
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
-from workers.event_listeners.core.config import settings
-from workers.event_listeners.models.websocket_postgres import UserWebsock
+from ..core.config import settings
+from ..models.websocket_postgres import UserWebsock
 
 
 class BasicTemplating:
@@ -24,7 +24,7 @@ class BasicTemplating:
 
     @staticmethod
     def little_url(url: str) -> str:
-        access = bitly_api.Connection(access_token=settings.bitly_access_token)
+        access = bitly_api.Connection(access_token=settings.mail.access_token)
         short_url = access.shorten(url)
         return short_url["url"]
 

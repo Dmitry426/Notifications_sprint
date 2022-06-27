@@ -1,8 +1,12 @@
 import argparse
+from logging import config as logging_config
 
-from workers.messaging_workers.db.rabbit import rabbit_conn_consume
-from workers.messaging_workers.worker_mail import WorkerMail
-from workers.messaging_workers.worker_websocket import websocket_server
+from .core.logger import LOGGING
+from .db.rabbit import rabbit_conn_consume
+from .worker_mail import WorkerMail
+from .worker_websocket import websocket_server
+
+logging_config.dictConfig(LOGGING)
 
 
 def mail_service():

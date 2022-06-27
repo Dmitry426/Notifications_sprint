@@ -5,19 +5,19 @@ import asyncio
 import websockets
 from websockets.legacy.server import WebSocketServerProtocol
 
-from workers.messaging_workers.core import config
-from workers.messaging_workers.core.config import settings
-from workers.messaging_workers.db.postgres import postgres_connect
-from workers.messaging_workers.models.websocket_postgres import UserWebsock
-from workers.messaging_workers.services.base_services import (
+
+from .core.config import settings
+from .db.postgres import postgres_connect
+from .models.websocket_postgres import UserWebsock
+from .services.base_services import (
     confirm_token,
     get_notifications,
     update_notification,
 )
 
-FROM_MAIL = settings.from_mail
-WS_HOST = config.settings.ws_host
-WS_PORT = config.settings.ws_port
+FROM_MAIL = settings.mail.email_from
+WS_HOST = settings.websocket.host
+WS_PORT = settings.websocket.port
 
 
 async def start(websocket):

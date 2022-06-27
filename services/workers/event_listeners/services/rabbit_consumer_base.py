@@ -10,9 +10,9 @@ from pika.exceptions import AMQPConnectionError
 from pika.exchange_type import ExchangeType
 from pika.spec import Basic
 
-from workers.event_listeners.core.config import settings
+from ..core.config import settings
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("")
 
 
 class RabbitConsumer(ABC):
@@ -38,7 +38,7 @@ class RabbitConsumer(ABC):
     @backoff.on_exception(
         wait_gen=backoff.expo,
         exception=(RuntimeError, TimeoutError, AMQPConnectionError),
-        max_time=settings.max_backoff,
+        max_time=settings.backoff_timeout,
     )
     def consume(self):
         self.channel = self.consumer_connection.channel()
