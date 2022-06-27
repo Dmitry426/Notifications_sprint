@@ -37,8 +37,8 @@ jobs:
 
     - name: Create directories
       run: |
-        mkdir -p reports/workers/wemake-python-styleguide/
-        mkdir -p reports/workers/mypy/
+        mkdir -p reports/services/wemake-python-styleguide/
+        mkdir -p reports/services/mypy/
 
     - name: Lint with wemake-python-styleguide
       run: |
