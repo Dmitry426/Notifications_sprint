@@ -3,12 +3,12 @@ import json
 import pika
 from pika import BlockingConnection
 
-from workers.event_listeners.core.config import settings
+from core.config import settings
 
 
 def rabbit_conn_consume() -> BlockingConnection:
     credentials = pika.PlainCredentials(
-        username=settings.r_name, password=settings.r_password
+        username=settings.rabbit.name, password=settings.rabbit.password
     )
     parameters = pika.ConnectionParameters(
         host="localhost", credentials=credentials, virtual_host="/vhost1"

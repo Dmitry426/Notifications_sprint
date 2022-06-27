@@ -1,4 +1,4 @@
-name: YandexPracticum CI
+name: Notification sprint CI
 
 on:
   push:
@@ -37,16 +37,16 @@ jobs:
 
     - name: Create directories
       run: |
-        mkdir -p reports/workers/wemake-python-styleguide/
-        mkdir -p reports/workers/mypy/
+        mkdir -p reports/services/wemake-python-styleguide/
+        mkdir -p reports/services/mypy/
 
     - name: Lint with wemake-python-styleguide
       run: |
-        flake8 workers --exit-zero --format=html --htmldir=reports/workers/wemake-python-styleguide/
+        flake8 services --exit-zero --format=html --htmldir=reports/services/wemake-python-styleguide/
 
     - name: Check typing with mypy
       run: |
-        mypy --html-report reports/workers/mypy/ ./workers || true
+        mypy --html-report reports/services/mypy/ ./services || true
 
     - name: Upload reports
       uses: actions/upload-artifact@v3
@@ -55,12 +55,12 @@ jobs:
         path: reports/
 
 
-    - name: Notification to telegram
-      if: cancelled() == false
-      uses: xinthink/action-telegram@v1.1
-      with:
-    #   botToken: ${{ secrets.BotToken }}
-        botToken: 5347245128:AAGKobztMy4Q45L9LFoTiunSAM7pONqRyPY
-    #   chatId: ${{ secrets.ChatID }}
-        chatId: -1001786569098
-        jobStatus: ${{ job.status }}
+#    - name: Notification to telegram
+#      if: cancelled() == false
+#      uses: xinthink/action-telegram@v1.1
+#      with:
+#    #   botToken: ${{ secrets.BotToken }}
+#        botToken: 5347245128:AAGKobztMy4Q45L9LFoTiunSAM7pONqRyPY
+#    #   chatId: ${{ secrets.ChatID }}
+#        chatId: -1001786569098
+#        jobStatus: ${{ job.status }}
